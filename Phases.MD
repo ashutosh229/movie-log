@@ -5,14 +5,14 @@ Auth (Email/Password)
 Firestore
 Add dependencies 
 
+===========================================
+
 🔐 PHASE 2: AUTHENTICATION
 Signup screen
 Login screen
 Auth state handling
 
-👉 Output:
-
-userId
+👉 Output:userId
 
 🧱 PHASE 3: ARCHITECTURE SETUP
 Create packages
