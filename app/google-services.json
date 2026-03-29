@@ -12,7 +12,12 @@
           "package_name": "com.ashutosh.movielog"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "798832291161-e1fqp53mrbd55pr0kcnduudbuvmujadm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA_9tTGFS0k27L4UC7QJIAdovExlY8_3P0"
@@ -20,7 +25,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798832291161-e1fqp53mrbd55pr0kcnduudbuvmujadm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798832291161:android:7f20238ed88700570ef048",
+        "android_client_info": {
+          "package_name": "com.example.movielog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "798832291161-e1fqp53mrbd55pr0kcnduudbuvmujadm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_9tTGFS0k27L4UC7QJIAdovExlY8_3P0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "798832291161-e1fqp53mrbd55pr0kcnduudbuvmujadm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
