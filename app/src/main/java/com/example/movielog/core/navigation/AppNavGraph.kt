@@ -7,14 +7,19 @@ import androidx.navigation.compose.rememberNavController
 import com.example.movielog.features.auth.presentation.screen.LoginScreen
 import com.example.movielog.features.auth.presentation.screen.SignupScreen
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel;
+import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.screen.HomeScreen
 import com.example.movielog.features.search.presentation.screen.SearchScreen
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
 
 @Composable
-fun AppNavGraph(viewModel: AuthViewModel, searchViewModel: SearchViewModel) {
+fun AppNavGraph(
+    authViewModel: AuthViewModel,
+    searchViewModel: SearchViewModel,
+    libraryRepository: LibraryRepository
+) {
     val navController = rememberNavController()
-    val startDestination = if (viewModel.getCurrentUser() != null) {
+    val startDestination = if (authViewModel.getCurrentUser() != null) {
         Routes.HOME
     } else {
         Routes.LOGIN
@@ -22,7 +27,7 @@ fun AppNavGraph(viewModel: AuthViewModel, searchViewModel: SearchViewModel) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Routes.LOGIN) {
             LoginScreen(
-                viewModel = viewModel,
+                viewModel = authViewModel,
                 onSwitchToSignup = { navController.navigate(Routes.SIGNUP) },
                 onLoginSuccess = {
                     navController.navigate(Routes.HOME) {
@@ -34,7 +39,7 @@ fun AppNavGraph(viewModel: AuthViewModel, searchViewModel: SearchViewModel) {
         }
         composable(Routes.SIGNUP) {
             SignupScreen(
-                viewModel = viewModel,
+                viewModel = authViewModel,
                 onSwitchToLogin = { navController.navigate(Routes.SIGNUP) },
                 onSignupSuccess = {
                     navController.navigate(Routes.HOME) {
@@ -46,7 +51,7 @@ fun AppNavGraph(viewModel: AuthViewModel, searchViewModel: SearchViewModel) {
         }
         composable(Routes.HOME) {
             HomeScreen(onLogout = {
-                viewModel.logout();
+                authViewModel.logout();
                 navController.navigate(
                     Routes.LOGIN
                 ) { popUpTo(Routes.HOME) { inclusive = true } }
@@ -55,10 +60,9 @@ fun AppNavGraph(viewModel: AuthViewModel, searchViewModel: SearchViewModel) {
             })
         }
         composable(Routes.SEARCH) {
-            SearchScreen(viewModel = searchViewModel, onContentClick = { snapshot ->
-                println("1")
-//                TODO: Write the firebase store code for snapshot
-            })
+            SearchScreen(
+                viewModel = searchViewModel, libraryRepository = libraryRepository
+            )
         }
     }
 }
