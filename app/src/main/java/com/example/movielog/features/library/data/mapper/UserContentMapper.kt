@@ -5,6 +5,7 @@ import com.example.movielog.features.library.domain.model.UserContent
 import com.example.movielog.features.library.domain.model.WatchStatus
 import com.example.movielog.features.search.domain.model.ContentType
 
+//TODO: When updating the entry, updated time should be logged, use the time module functions
 object UserContentMapper {
 
     // 🔹 DOMAIN → FIRESTORE MAP
