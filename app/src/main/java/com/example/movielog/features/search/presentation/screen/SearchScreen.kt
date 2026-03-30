@@ -18,13 +18,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.components.SearchItem
 import com.example.movielog.features.search.domain.mapper.toSnapshot
+import com.example.movielog.features.search.domain.model.ContentSnapshot
 import com.example.movielog.features.search.presentation.state.SearchUiState
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
 
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
-    onContentClick: (com.example.movielog.features.search.domain.model.ContentSnapshot) -> Unit
+    onContentClick: (ContentSnapshot) -> Unit
 ) {
 
     val query by viewModel.query.collectAsState()
