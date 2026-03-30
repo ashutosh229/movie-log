@@ -8,9 +8,11 @@ import com.example.movielog.features.auth.presentation.screen.LoginScreen
 import com.example.movielog.features.auth.presentation.screen.SignupScreen
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel;
 import com.example.movielog.features.library.presentation.screen.HomeScreen
+import com.example.movielog.features.search.presentation.screen.SearchScreen
+import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
 
 @Composable
-fun AppNavGraph(viewModel: AuthViewModel) {
+fun AppNavGraph(viewModel: AuthViewModel, searchViewModel: SearchViewModel) {
     val navController = rememberNavController()
     val startDestination = if (viewModel.getCurrentUser() != null) {
         Routes.HOME
@@ -44,9 +46,18 @@ fun AppNavGraph(viewModel: AuthViewModel) {
         }
         composable(Routes.HOME) {
             HomeScreen(onLogout = {
-                viewModel.logout();navController.navigate(
-                Routes.LOGIN
-            ) { popUpTo(Routes.HOME) { inclusive = true } }
+                viewModel.logout();
+                navController.navigate(
+                    Routes.LOGIN
+                ) { popUpTo(Routes.HOME) { inclusive = true } }
+            }, onNavigateToSearch = {
+                navController.navigate(Routes.SEARCH)
+            })
+        }
+        composable(Routes.SEARCH) {
+            SearchScreen(viewModel = searchViewModel, onContentClick = { snapshot ->
+                println("1")
+//                TODO: Write the firebase store code for snapshot
             })
         }
     }
