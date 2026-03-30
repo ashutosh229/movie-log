@@ -14,22 +14,33 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.components.SearchItem
+import com.example.movielog.core.ui.components.StatusSelectionDialog
+import com.example.movielog.features.library.domain.mapper.toUserContent
+import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.search.domain.mapper.toSnapshot
 import com.example.movielog.features.search.domain.model.ContentSnapshot
 import com.example.movielog.features.search.presentation.state.SearchUiState
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
-    onContentClick: (ContentSnapshot) -> Unit
+    libraryRepository: LibraryRepository
 ) {
 
     val query by viewModel.query.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
+
+    var selectedContent by remember { mutableStateOf<ContentSnapshot?>(null) }
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -47,7 +58,6 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 📊 UI STATE HANDLING
         when (uiState) {
 
             is SearchUiState.Idle -> {
@@ -68,11 +78,29 @@ fun SearchScreen(
                 LazyColumn {
                     items(results) { content ->
                         SearchItem(content = content) {
-                            onContentClick(content.toSnapshot())
+                            // 🔥 Instead of navigating → open dialog
+                            selectedContent = content.toSnapshot()
                         }
                     }
                 }
             }
         }
+    }
+
+    // 🔥 STATUS SELECTION DIALOG
+    selectedContent?.let { snapshot ->
+
+        StatusSelectionDialog(
+            onDismiss = { selectedContent = null },
+            onStatusSelected = { status ->
+
+                val userContent = snapshot.toUserContent(status)
+
+                scope.launch {
+                    libraryRepository.addOrUpdateContent(userContent)
+                    selectedContent = null
+                }
+            }
+        )
     }
 }
