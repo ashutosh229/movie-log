@@ -9,6 +9,7 @@ object NetworkModule {
 
     private const val TMDB_BASE_URL = "https://api.themoviedb.org/3/"
     private const val JIKAN_BASE_URL = "https://api.jikan.moe/v4/"
+//    TODO: Need to think of a config file for storing constants
 
     // 🔹 Logger (VERY useful for debugging)
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
