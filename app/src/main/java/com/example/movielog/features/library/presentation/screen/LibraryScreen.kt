@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.movielog.core.ui.components.LibraryItem
 import com.example.movielog.features.library.presentation.state.LibraryUiState
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
 
