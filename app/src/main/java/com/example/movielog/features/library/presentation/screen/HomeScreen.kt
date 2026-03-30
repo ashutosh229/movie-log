@@ -11,10 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+//TODO: Migrate the home screen to core UI
 @Composable
 fun HomeScreen(
     onNavigateToSearch: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onNavigateToShow: () -> Unit
 ) {
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -33,6 +35,15 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Logout")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onNavigateToShow,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Show Entries")
         }
     }
 }
