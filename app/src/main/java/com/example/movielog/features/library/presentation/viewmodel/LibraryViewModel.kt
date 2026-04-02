@@ -3,6 +3,7 @@ package com.example.movielog.features.library.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movielog.core.auth.AuthManager
+import com.example.movielog.features.library.domain.model.UserContent
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.state.LibraryUiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +47,13 @@ class LibraryViewModel(
                 onSuccess = { LibraryUiState.Success(it) },
                 onFailure = { LibraryUiState.Error(it.message ?: "Unknown error") }
             )
+        }
+    }
+
+    fun updateContent(content: UserContent) {
+        viewModelScope.launch {
+            repository.addOrUpdateContent(content)
+            fetchLibrary() // refresh
         }
     }
 }
