@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,6 +24,7 @@ import com.example.movielog.core.ui.components.LibraryItem
 import com.example.movielog.core.ui.components.ProgressDialog
 import com.example.movielog.features.library.domain.model.UserContent
 import com.example.movielog.features.library.domain.model.WatchStatus
+import com.example.movielog.features.library.domain.model.displayName
 import com.example.movielog.features.library.presentation.state.LibraryUiState
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
 
@@ -32,7 +35,28 @@ fun LibraryScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     var selectedContent by remember { mutableStateOf<UserContent?>(null) }
+    var selectedTab by remember { mutableStateOf(WatchStatus.ONGOING) }
 
+    val tabs = listOf(
+        WatchStatus.ONGOING,
+        WatchStatus.TO_WATCH,
+        WatchStatus.COMPLETED,
+        WatchStatus.REPOSITORY
+    )
+
+    TabRow(selectedTabIndex = tabs.indexOf(selectedTab)) {
+        tabs.forEach { status ->
+            Tab(
+                selected = selectedTab == status,
+                onClick = { selectedTab = status },
+                text = {
+                    Text(
+                        text = status.displayName()
+                    )
+                }
+            )
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -57,13 +81,15 @@ fun LibraryScreen(
             }
 
             is LibraryUiState.Success -> {
-                val data = (uiState as LibraryUiState.Success).data
-
-                if (data.isEmpty()) {
-                    Text("No content added yet.")
+                val allData = (uiState as LibraryUiState.Success).data
+                val filteredData = allData.filter {
+                    it.status == selectedTab
+                }
+                if (filteredData.isEmpty()) {
+                    Text("No content in ${selectedTab.displayName()}")
                 } else {
                     LazyColumn {
-                        items(data) { item ->
+                        items(filteredData) { item ->
                             LibraryItem(
                                 content = item,
                                 onClick = {
