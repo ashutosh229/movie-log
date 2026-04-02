@@ -1,5 +1,6 @@
 package com.example.movielog.features.library.presentation.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,9 +90,23 @@ fun LibraryScreen(
                     it.status == selectedTab
                 }
                 if (filteredData.isEmpty()) {
-                    Text("No content in ${selectedTab.displayName()}")
+                    Column {
+                        Text(
+                            text = "No content in ${selectedTab.displayName()}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Start adding something",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 } else {
-                    LazyColumn {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         items(filteredData) { item ->
                             LibraryItem(
                                 content = item,
