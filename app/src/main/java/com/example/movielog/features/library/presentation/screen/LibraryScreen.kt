@@ -1,13 +1,27 @@
 package com.example.movielog.features.library.presentation.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.components.LibraryItem
+import com.example.movielog.core.ui.components.ProgressDialog
+import com.example.movielog.features.library.domain.model.UserContent
+import com.example.movielog.features.library.domain.model.WatchStatus
 import com.example.movielog.features.library.presentation.state.LibraryUiState
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
 
@@ -17,6 +31,7 @@ fun LibraryScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
+    var selectedContent by remember { mutableStateOf<UserContent?>(null) }
 
     Column(
         modifier = Modifier
@@ -49,11 +64,37 @@ fun LibraryScreen(
                 } else {
                     LazyColumn {
                         items(data) { item ->
-                            LibraryItem(item)
+                            LibraryItem(
+                                content = item,
+                                onClick = {
+                                    selectedContent = item
+                                }
+                            )
                         }
                     }
                 }
             }
         }
+    }
+    selectedContent?.let { content ->
+
+        ProgressDialog(
+            type = content.type,
+            onDismiss = {
+                selectedContent = null
+            },
+            onSave = { progress ->
+
+                val updatedContent = content.copy(
+                    progress = progress,
+                    status = WatchStatus.ONGOING,
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                viewModel.updateContent(updatedContent)
+
+                selectedContent = null
+            }
+        )
     }
 }
