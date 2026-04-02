@@ -2,46 +2,60 @@ package com.example.movielog.features.auth.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movielog.core.auth.AuthManager
 import com.example.movielog.features.auth.domain.model.User
 import com.example.movielog.features.auth.domain.repository.AuthRepository
 import com.example.movielog.features.auth.presentation.state.AuthState
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.*
 
 class AuthViewModel(
     private val repository: AuthRepository
 ) : ViewModel() {
 
-    var authState by mutableStateOf<AuthState>(AuthState.Idle)
+    var authState: AuthState = AuthState.Loading
         private set
+
+    init {
+        observeAuthState()
+    }
+
+    private fun observeAuthState() {
+        viewModelScope.launch {
+            AuthManager.authState.collectLatest { firebaseUser ->
+
+                authState = if (firebaseUser != null) {
+                    AuthState.Success(
+                        User(
+                            uid = firebaseUser.uid,
+                            email = firebaseUser.email
+                        )
+                    )
+                } else {
+                    AuthState.Idle
+                }
+            }
+        }
+    }
 
     fun register(email: String, password: String) {
         viewModelScope.launch {
             authState = AuthState.Loading
-
-            val result = repository.register(email, password)
-
-            authState = result.fold(
-                onSuccess = { AuthState.Success(it) },
-                onFailure = { AuthState.Error(it.message ?: "Registration failed") }
-            )
+            repository.register(email, password)
+            // ❌ DO NOT set state manually here anymore
         }
     }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             authState = AuthState.Loading
-
-            val result = repository.login(email, password)
-
-            authState = result.fold(
-                onSuccess = { AuthState.Success(it) },
-                onFailure = { AuthState.Error(it.message ?: "Login failed") }
-            )
+            repository.login(email, password)
+            // ❌ DO NOT set state manually
         }
     }
 
-    fun getCurrentUser(): User? = repository.getCurrentUser()
-
-    fun logout() = repository.logout()
+    fun logout() {
+        repository.logout()
+        // ❌ DO NOT set state manually
+    }
 }

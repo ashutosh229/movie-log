@@ -2,10 +2,12 @@ package com.example.movielog.features.library.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movielog.core.auth.AuthManager
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.state.LibraryUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LibraryViewModel(
@@ -16,7 +18,22 @@ class LibraryViewModel(
     val uiState: StateFlow<LibraryUiState> = _uiState
 
     init {
-        fetchLibrary()
+        observeAuthAndFetch()
+    }
+
+    private fun observeAuthAndFetch() {
+        viewModelScope.launch {
+            AuthManager.authState.collectLatest { user ->
+
+                if (user == null) {
+                    // 🔥 Clear data when logged out
+                    _uiState.value = LibraryUiState.Success(emptyList())
+                } else {
+                    // 🔥 Fetch fresh data for new user
+                    fetchLibrary()
+                }
+            }
+        }
     }
 
     fun fetchLibrary() {

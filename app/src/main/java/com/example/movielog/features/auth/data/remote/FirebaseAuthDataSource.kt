@@ -1,19 +1,27 @@
 package com.example.movielog.features.auth.data.remote
 
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.tasks.await
+import com.example.movielog.core.auth.AuthManager
+import com.google.firebase.auth.AuthResult
 
 class FirebaseAuthDataSource {
 
-    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    suspend fun register(email: String, password: String): AuthResult {
+        return AuthManager.register(email, password)
+    }
 
-    suspend fun register(email: String, password: String) =
-        auth.createUserWithEmailAndPassword(email, password).await()
+    suspend fun login(email: String, password: String): AuthResult {
+        return AuthManager.login(email, password)
+    }
 
-    suspend fun login(email: String, password: String) =
-        auth.signInWithEmailAndPassword(email, password).await()
+    fun getCurrentUserId(): String? {
+        return AuthManager.getCurrentUserId()
+    }
 
-    fun getCurrentUser() = auth.currentUser
+//    fun isLoggedIn(): Boolean {
+//        return AuthManager.isLoggedIn()
+//    }
 
-    fun logout() = auth.signOut()
+    fun logout() {
+        AuthManager.logout()
+    }
 }

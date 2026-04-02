@@ -1,17 +1,17 @@
 package com.example.movielog.features.library.data.remote
 
-import com.google.firebase.auth.FirebaseAuth
+import com.example.movielog.core.auth.AuthManager
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class LibraryRemoteDataSource {
 
     private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
 
     private fun getUserId(): String {
-        return auth.currentUser?.uid
-            ?: throw Exception("User not logged in")
+        val userId = AuthManager.getCurrentUserId()
+//        println("DEBUG: userId = $userId")
+        return userId ?: throw Exception("User not logged in")
     }
 
     private fun getLibraryCollection() =

@@ -40,10 +40,18 @@ class AuthRepositoryImpl(
         }
     }
 
+    // 🔥 FIXED
+//    TODO: firestore instance ka dekhna hain woh multiuser same data wala issue
+//    TODO: is function ke uses dekhne hain and unko hatana hain
     override fun getCurrentUser(): User? {
-        val user = dataSource.getCurrentUser()
-        return user?.let {
-            User(uid = it.uid, email = it.email)
+        val uid = dataSource.getCurrentUserId()
+
+        return uid?.let {
+            User(
+                uid = it,
+                email = null  // ⚠️ Firebase doesn't expose email here safely without user object
+//                TODO: when there will be use of email, think something
+            )
         }
     }
 
