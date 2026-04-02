@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.movielog.core.ui.components.ContentActionSheet
 import com.example.movielog.core.ui.components.LibraryItem
 import com.example.movielog.core.ui.components.ProgressDialog
 import com.example.movielog.features.library.domain.model.UserContent
@@ -36,6 +37,8 @@ fun LibraryScreen(
     val uiState by viewModel.uiState.collectAsState()
     var selectedContent by remember { mutableStateOf<UserContent?>(null) }
     var selectedTab by remember { mutableStateOf(WatchStatus.ONGOING) }
+    var showActionSheet by remember { mutableStateOf(false) }
+    var showProgressDialog by remember { mutableStateOf(false) }
 
     val tabs = listOf(
         WatchStatus.ONGOING,
@@ -94,6 +97,7 @@ fun LibraryScreen(
                                 content = item,
                                 onClick = {
                                     selectedContent = item
+                                    showActionSheet = true
                                 }
                             )
                         }
@@ -102,12 +106,14 @@ fun LibraryScreen(
             }
         }
     }
-    selectedContent?.let { content ->
+    if (showProgressDialog && selectedContent != null) {
+
+        val content = selectedContent!!
 
         ProgressDialog(
             type = content.type,
             onDismiss = {
-                selectedContent = null
+                showProgressDialog = false
             },
             onSave = { progress ->
 
@@ -119,6 +125,38 @@ fun LibraryScreen(
 
                 viewModel.updateContent(updatedContent)
 
+                showProgressDialog = false
+                selectedContent = null
+            }
+        )
+    }
+    if (showActionSheet && selectedContent != null) {
+
+        ContentActionSheet(
+            onDismiss = {
+                showActionSheet = false
+            },
+
+            onUpdateProgress = {
+                showActionSheet = false
+                showProgressDialog = true
+            },
+
+            onChangeStatus = { newStatus ->
+
+                val updated = selectedContent!!.copy(
+                    status = newStatus,
+                    updatedAt = System.currentTimeMillis()
+                )
+
+                viewModel.updateContent(updated)
+                showActionSheet = false
+                selectedContent = null
+            },
+
+            onDelete = {
+                viewModel.deleteContent(selectedContent!!.id)
+                showActionSheet = false
                 selectedContent = null
             }
         )
