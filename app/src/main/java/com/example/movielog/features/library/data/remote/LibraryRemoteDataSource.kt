@@ -10,7 +10,6 @@ class LibraryRemoteDataSource {
 
     private fun getUserId(): String {
         val userId = AuthManager.getCurrentUserId()
-//        println("DEBUG: userId = $userId")
         return userId ?: throw Exception("User not logged in")
     }
 
