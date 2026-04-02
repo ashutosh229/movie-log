@@ -56,4 +56,11 @@ class LibraryViewModel(
             fetchLibrary() // refresh
         }
     }
+
+    fun deleteContent(contentId: String) {
+        viewModelScope.launch {
+            repository.deleteContent(contentId)
+            fetchLibrary()
+        }
+    }
 }
