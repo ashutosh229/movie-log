@@ -6,3 +6,13 @@ enum class WatchStatus {
     TO_WATCH,
     REPOSITORY
 }
+
+//TODO: Migrate the utility later
+fun WatchStatus.displayName(): String {
+    return when (this) {
+        WatchStatus.TO_WATCH -> "To Watch"
+        WatchStatus.ONGOING -> "Ongoing"
+        WatchStatus.COMPLETED -> "Completed"
+        WatchStatus.REPOSITORY -> "Repository"
+    }
+}
