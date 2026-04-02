@@ -12,3 +12,11 @@ sealed class Progress {
         val timestamp: Long
     ) : Progress()
 }
+
+//TODO: Migrate this to other like mapper or utils
+fun Progress.toReadableString(): String {
+    return when (this) {
+        is Progress.MovieProgress -> "At ${timestamp}s"
+        is Progress.EpisodeProgress -> "S$season E$episode @ ${timestamp}s"
+    }
+}
