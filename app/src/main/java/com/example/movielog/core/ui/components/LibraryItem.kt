@@ -1,5 +1,6 @@
 package com.example.movielog.core.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,23 +15,24 @@ import androidx.compose.ui.unit.dp
 import com.example.movielog.features.library.domain.model.UserContent
 
 @Composable
-fun LibraryItem(item: UserContent) {
+fun LibraryItem(content: UserContent, onClick: () -> Unit) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable { onClick() }
     ) {
 
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(text = item.title, style = MaterialTheme.typography.titleMedium)
+            Text(text = content.title, style = MaterialTheme.typography.titleMedium)
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(text = "Type: ${item.type}")
+            Text(text = "Type: ${content.type}")
 
-            Text(text = "Status: ${item.status}")
+            Text(text = "Status: ${content.status}")
         }
     }
 }
