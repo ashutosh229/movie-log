@@ -1,5 +1,6 @@
 package com.example.movielog.features.search.data.repository
 
+import com.example.movielog.core.utils.calculateRelevance
 import com.example.movielog.features.search.data.mapper.ContentMapper
 import com.example.movielog.features.search.data.remote.SearchRemoteDataSource
 import com.example.movielog.features.search.domain.model.Content
@@ -32,8 +33,10 @@ class SearchRepositoryImpl(
                 }
 
                 val combined = (movies + series + anime)
-                    .sortedByDescending { it.rating ?: 0.0 }
-
+                    .sortedWith(
+                        compareByDescending<Content> { calculateRelevance(query, it.title) }
+                            .thenByDescending { it.rating ?: 0.0 }
+                    )
                 Result.success(combined)
             }
 
