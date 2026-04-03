@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movielog.core.navigation.AppNavGraph
 import com.example.movielog.core.ui.theme.MovieLogTheme
+import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.auth.data.remote.FirebaseAuthDataSource
 import com.example.movielog.features.auth.data.repository.AuthRepositoryImpl
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
@@ -41,8 +45,16 @@ class MainActivity : ComponentActivity() {
             libraryRepository
         )
         setContent {
-            MovieLogTheme {
-                AppNavGraph(authViewModel, searchViewModel, libraryRepository, libraryViewModel)
+            val themeViewModel: ThemeViewModel = viewModel()
+            val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+            MovieLogTheme(darkTheme = isDarkMode) {
+                AppNavGraph(
+                    authViewModel,
+                    searchViewModel,
+                    libraryRepository,
+                    libraryViewModel,
+                    themeViewModel
+                )
             }
         }
     }
