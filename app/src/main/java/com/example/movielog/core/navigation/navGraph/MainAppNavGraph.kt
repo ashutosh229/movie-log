@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.movielog.core.auth.AuthManager
 import com.example.movielog.core.navigation.Routes
+import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.screen.HomeScreen
 import com.example.movielog.features.library.presentation.screen.LibraryScreen
@@ -21,6 +22,7 @@ fun MainAppNavGraph(
     searchViewModel: SearchViewModel,
     libraryRepository: LibraryRepository,
     libraryViewModel: LibraryViewModel,
+    themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -49,7 +51,8 @@ fun MainAppNavGraph(
             ProfileScreen(
                 onLogout = {
                     AuthManager.logout()
-                }
+                },
+                themeViewModel = themeViewModel
             )
         }
     }
