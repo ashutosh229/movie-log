@@ -2,10 +2,14 @@ package com.example.movielog.features.library.presentation.screen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,32 +22,44 @@ fun HomeScreen(
     onLogout: () -> Unit,
     onNavigateToShow: () -> Unit
 ) {
-
-    Column(modifier = Modifier.padding(16.dp)) {
-
-        Button(
-            onClick = onNavigateToSearch,
-            modifier = Modifier.fillMaxWidth()
+    Scaffold { innerPadding ->
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
         ) {
-            Text("Search Content")
-        }
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onNavigateToSearch,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Search Content")
+                }
 
-        Button(
-            onClick = onLogout,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Logout")
-        }
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onLogout,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Logout")
+                }
 
-        Button(
-            onClick = onNavigateToShow,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Show Entries")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = onNavigateToShow,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Show Entries")
+                }
+            }
         }
     }
+
+
 }
