@@ -103,13 +103,13 @@ Mapper Layer
 
 ## 🧪 Future Enhancements
 
-🔄 Real-time Firestore sync (snapshot listeners)
-💾 Offline caching (Room DB)
-🎬 Content Detail Screen
-🔔 Notifications & reminders
-📈 User analytics (watch stats)
-🎨 Dynamic theming (Material You)
-🔍 Advanced filters & sorting
+1. 🔄 Real-time Firestore sync (snapshot listeners)
+2. 💾 Offline caching (Room DB)
+3. 🎬 Content Detail Screen
+4. 🔔 Notifications & reminders
+5. 📈 User analytics (watch stats)
+6. 🎨 Dynamic theming (Material You)
+7. 🔍 Advanced filters & sorting
 
 --- 
 
