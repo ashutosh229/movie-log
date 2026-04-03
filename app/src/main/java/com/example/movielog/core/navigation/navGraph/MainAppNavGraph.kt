@@ -1,6 +1,7 @@
 package com.example.movielog.core.navigation.navGraph
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,24 +20,17 @@ fun MainAppNavGraph(
     navController: NavHostController,
     searchViewModel: SearchViewModel,
     libraryRepository: LibraryRepository,
-    libraryViewModel: LibraryViewModel
+    libraryViewModel: LibraryViewModel,
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.HOME
+        startDestination = Routes.HOME,
+        modifier = modifier
     ) {
 
         composable(Routes.HOME) {
             HomeScreen(
-                onLogout = {
-                    AuthManager.logout()
-                },
-                onNavigateToSearch = {
-                    navController.navigate(Routes.SEARCH)
-                },
-                onNavigateToShow = {
-                    navController.navigate(Routes.LIBRARY)
-                }
             )
         }
 
