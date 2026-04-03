@@ -2,6 +2,10 @@ package com.example.movielog.features.library.data.remote
 
 import com.example.movielog.core.auth.AuthManager
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class LibraryRemoteDataSource {
@@ -27,13 +31,27 @@ class LibraryRemoteDataSource {
             .await()
     }
 
-    // 🔹 GET ALL CONTENT
-    suspend fun getAllContent(): List<Map<String, Any>> {
-        val snapshot = getLibraryCollection()
-            .get()
-            .await()
+    // 🔥 REACTIVE STREAM (REAL-TIME UPDATES)
+    fun observeAllContent(): Flow<List<Map<String, Any>>> = callbackFlow {
 
-        return snapshot.documents.mapNotNull { it.data }
+        val listener: ListenerRegistration =
+            getLibraryCollection()
+                .addSnapshotListener { snapshot, error ->
+
+                    if (error != null) {
+                        close(error)
+                        return@addSnapshotListener
+                    }
+
+                    if (snapshot != null) {
+                        val data = snapshot.documents.mapNotNull { it.data }
+                        trySend(data)
+                    }
+                }
+
+        awaitClose {
+            listener.remove()
+        }
     }
 
     // 🔹 DELETE CONTENT
