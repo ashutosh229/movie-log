@@ -15,39 +15,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// -------------------- COLORS --------------------
-
-// Dark Theme Colors (Recommended)
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF6C5CE7),
-    secondary = Color(0xFF00B894),
-    tertiary = Color(0xFF0984E3),
+    primary = Color(0xFFD0BCFF),
+    secondary = Color(0xFFCCC2DC),
+    tertiary = Color(0xFFEFB8C8),
 
-    background = Color(0xFF0F172A),
-    surface = Color(0xFF1E293B),
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E),
 
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onBackground = Color(0xFFF1F5F9),
-    onSurface = Color(0xFFF1F5F9)
+    onPrimary = Color.Black,
+    onSecondary = Color.Black,
+    onBackground = Color.White,
+    onSurface = Color.White
 )
 
-// Light Theme Colors (Optional)
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6C5CE7),
-    secondary = Color(0xFF00B894),
-    tertiary = Color(0xFF0984E3),
+    primary = Color(0xFF6650a4),
+    secondary = Color(0xFF625b71),
+    tertiary = Color(0xFF7D5260),
 
-    background = Color(0xFFF8FAFC),
-    surface = Color(0xFFFFFFFF),
+    background = Color(0xFFF5F5F5),
+    surface = Color.White,
 
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onBackground = Color(0xFF0F172A),
-    onSurface = Color(0xFF0F172A)
+    onBackground = Color.Black,
+    onSurface = Color.Black
 )
-
-// -------------------- TYPOGRAPHY --------------------
 
 private val AppTypography = Typography(
     displayLarge = TextStyle(
@@ -82,8 +76,6 @@ private val AppTypography = Typography(
     )
 )
 
-// -------------------- SHAPES --------------------
-
 private val AppShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(8.dp),
@@ -91,8 +83,6 @@ private val AppShapes = Shapes(
     large = RoundedCornerShape(16.dp),
     extraLarge = RoundedCornerShape(24.dp)
 )
-
-// -------------------- THEME --------------------
 
 @Composable
 fun MovieLogTheme(
