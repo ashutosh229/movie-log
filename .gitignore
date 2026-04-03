@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+Architecture.MD
+Phases.MD
