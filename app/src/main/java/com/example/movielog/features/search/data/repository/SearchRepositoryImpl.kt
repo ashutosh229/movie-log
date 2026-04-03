@@ -32,11 +32,20 @@ class SearchRepositoryImpl(
                     ContentMapper.mapAnimeDtoToContent(it)
                 }
 
+//                TODO: Apply deduplication further
                 val combined = (movies + series + anime)
+                    .map { content ->
+                        content to calculateRelevance(query, content.title)
+                    }
+                    .filter { (_, score) ->
+//                        TODO: Store this hyperparameter in a config file
+                        score > 200
+                    }
                     .sortedWith(
-                        compareByDescending<Content> { calculateRelevance(query, it.title) }
-                            .thenByDescending { it.rating ?: 0.0 }
+                        compareByDescending<Pair<Content, Int>> { it.second }
+                            .thenByDescending { it.first.rating ?: 0.0 }
                     )
+                    .map { it.first }
                 Result.success(combined)
             }
 
