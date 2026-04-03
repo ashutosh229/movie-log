@@ -1,5 +1,7 @@
 package com.example.movielog.features.search.presentation.screen
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,8 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,10 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.movielog.core.ui.components.SearchItem
-import com.example.movielog.core.ui.components.StatusSelectionDialog
+import com.example.movielog.core.ui.components.search.SearchItem
+import com.example.movielog.core.ui.components.search.StatusSelectionDialog
 import com.example.movielog.features.library.domain.mapper.toUserContent
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.search.domain.mapper.toSnapshot
@@ -42,44 +47,97 @@ fun SearchScreen(
     var selectedContent by remember { mutableStateOf<ContentSnapshot?>(null) }
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    Scaffold { innerPadding ->
 
-        // 🔍 SEARCH BAR
-        TextField(
-            value = query,
-            onValueChange = { viewModel.onQueryChange(it) },
-            label = { Text("Search movies, anime, series") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Header
+            Text(
+                text = "Search",
+                style = MaterialTheme.typography.headlineMedium
+            )
 
-        when (uiState) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-            is SearchUiState.Idle -> {
-                Text("Start typing to search...")
-            }
+            // Search Bar (Styled)
+            OutlinedTextField(
+                value = query,
+                onValueChange = { viewModel.onQueryChange(it) },
+                label = { Text("Search movies, anime, series") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
-            is SearchUiState.Loading -> {
-                CircularProgressIndicator()
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            is SearchUiState.Error -> {
-                Text((uiState as SearchUiState.Error).message)
-            }
+            // Content Area
+            when (uiState) {
 
-            is SearchUiState.Success -> {
-                val results = (uiState as SearchUiState.Success).data
+                is SearchUiState.Idle -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Start typing to search",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
-                LazyColumn {
-                    items(results) { content ->
-                        SearchItem(content = content) {
-                            // 🔥 Instead of navigating → open dialog
-                            selectedContent = content.toSnapshot()
+                is SearchUiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is SearchUiState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = (uiState as SearchUiState.Error).message,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
+                is SearchUiState.Success -> {
+
+                    val results = (uiState as SearchUiState.Success).data
+
+                    if (results.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No results found",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else {
+
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(results) { content ->
+                                SearchItem(
+                                    content = content,
+                                    onClick = {
+                                        selectedContent = content.toSnapshot()
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -87,7 +145,7 @@ fun SearchScreen(
         }
     }
 
-    // 🔥 STATUS SELECTION DIALOG
+    // Status Selection Dialog
     selectedContent?.let { snapshot ->
 
         StatusSelectionDialog(
