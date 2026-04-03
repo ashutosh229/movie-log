@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.rememberNavController
 import com.example.movielog.core.auth.AuthManager
 import com.example.movielog.core.navigation.navGraph.AuthNavGraph
-import com.example.movielog.core.navigation.navGraph.MainAppNavGraph
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
@@ -19,11 +18,11 @@ fun AppNavGraph(
     libraryRepository: LibraryRepository,
     libraryViewModel: LibraryViewModel
 ) {
-    val navController = rememberNavController()
-
     val authState by AuthManager.authState.collectAsState()
 
     if (authState == null) {
+//        TODO: Migrate this navcontroller onto the nav graph
+        val navController = rememberNavController()
         AuthNavGraph(
             navController = navController,
             authViewModel = authViewModel,
@@ -31,8 +30,7 @@ fun AppNavGraph(
             }
         )
     } else {
-        MainAppNavGraph(
-            navController = navController,
+        MainAppContainer(
             searchViewModel = searchViewModel,
             libraryRepository = libraryRepository,
             libraryViewModel = libraryViewModel
