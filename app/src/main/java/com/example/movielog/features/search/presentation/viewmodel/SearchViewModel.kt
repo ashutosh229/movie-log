@@ -7,10 +7,12 @@ import com.example.movielog.features.search.presentation.state.SearchUiState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
@@ -18,11 +20,9 @@ class SearchViewModel(
     private val repository: SearchRepository
 ) : ViewModel() {
 
-    // 🔍 Search query input
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
-    // 📊 UI state
     private val _uiState = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
     val uiState: StateFlow<SearchUiState> = _uiState
 
@@ -30,30 +30,42 @@ class SearchViewModel(
         observeSearch()
     }
 
-    // 🧠 Called when user types
     fun onQueryChange(newQuery: String) {
         _query.value = newQuery
     }
 
-    // 🔥 CORE LOGIC (Debouncing)
     private fun observeSearch() {
         viewModelScope.launch {
             _query
-                .debounce(500) // ⏳ wait for user to stop typing
-                .filter { it.isNotBlank() }
+//                TODO: Migrate this hyperparameter into config
+                .debounce(400) // 🔥 KEY PART
+                .map { it.trim() }
                 .distinctUntilChanged()
-                .collectLatest { query ->
+                .flatMapLatest { query ->
+                    if (query.isBlank()) {
+                        flowOf<SearchUiState>(SearchUiState.Idle)
+                    } else {
+                        flow<SearchUiState> {
 
-                    _uiState.value = SearchUiState.Loading
+                            emit(SearchUiState.Loading)
 
-                    val result = repository.searchContent(query)
+                            val result = repository.searchContent(query)
 
-                    _uiState.value = result.fold(
-                        onSuccess = { SearchUiState.Success(it) },
-                        onFailure = {
-                            SearchUiState.Error(it.message ?: "Something went wrong")
+                            emit(
+                                result.fold(
+                                    onSuccess = { SearchUiState.Success(it) },
+                                    onFailure = {
+                                        SearchUiState.Error(
+                                            it.message ?: "Unknown error"
+                                        )
+                                    }
+                                )
+                            )
                         }
-                    )
+                    }
+                }
+                .collect {
+                    _uiState.value = it
                 }
         }
     }
