@@ -29,9 +29,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.movielog.core.ui.components.library.ProgressDialog
 import com.example.movielog.core.ui.components.search.SearchItem
 import com.example.movielog.core.ui.components.search.StatusSelectionDialog
 import com.example.movielog.features.library.domain.mapper.toUserContent
+import com.example.movielog.features.library.domain.model.WatchStatus
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.search.domain.mapper.toSnapshot
 import com.example.movielog.features.search.domain.model.ContentSnapshot
@@ -49,6 +51,10 @@ fun SearchScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var selectedContent by remember { mutableStateOf<ContentSnapshot?>(null) }
+    var showProgressDialog by remember { mutableStateOf(false) }
+    var pendingContent by remember { mutableStateOf<ContentSnapshot?>(null) }
+    var pendingStatus by remember { mutableStateOf<WatchStatus?>(null) }
+
     val scope = rememberCoroutineScope()
 
     Scaffold { innerPadding ->
@@ -170,12 +176,50 @@ fun SearchScreen(
             onDismiss = { selectedContent = null },
             onStatusSelected = { status ->
 
-                val userContent = snapshot.toUserContent(status)
+                if (status == WatchStatus.ONGOING) {
+                    pendingContent = snapshot
+                    pendingStatus = status
+                    showProgressDialog = true
+                } else {
+                    val userContent = snapshot.toUserContent(status)
+
+                    scope.launch {
+                        libraryRepository.addOrUpdateContent(userContent)
+                        selectedContent = null
+                    }
+                }
+            }
+        )
+    }
+
+    if (showProgressDialog && pendingContent != null && pendingStatus != null) {
+
+        val snapshot = pendingContent!!
+
+        ProgressDialog(
+            type = snapshot.type,
+            onDismiss = {
+                showProgressDialog = false
+                pendingContent = null
+                pendingStatus = null
+            },
+            onSave = { progress ->
+
+                val userContent = snapshot
+                    .toUserContent(WatchStatus.ONGOING)
+                    .copy(
+                        progress = progress,
+                        updatedAt = System.currentTimeMillis()
+                    )
 
                 scope.launch {
                     libraryRepository.addOrUpdateContent(userContent)
-                    selectedContent = null
                 }
+
+                showProgressDialog = false
+                pendingContent = null
+                pendingStatus = null
+                selectedContent = null
             }
         )
     }
