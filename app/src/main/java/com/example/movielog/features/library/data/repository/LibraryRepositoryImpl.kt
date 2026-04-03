@@ -4,6 +4,8 @@ import com.example.movielog.features.library.data.mapper.UserContentMapper
 import com.example.movielog.features.library.data.remote.LibraryRemoteDataSource
 import com.example.movielog.features.library.domain.model.UserContent
 import com.example.movielog.features.library.domain.repository.LibraryRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class LibraryRepositoryImpl(
     private val remoteDataSource: LibraryRemoteDataSource
@@ -19,16 +21,12 @@ class LibraryRepositoryImpl(
         }
     }
 
-    override suspend fun getAllContent(): Result<List<UserContent>> {
-        return try {
-            val maps = remoteDataSource.getAllContent()
-            val contentList = maps.map {
-                UserContentMapper.fromMap(it)
+    // 🔥 REACTIVE FLOW MAPPING
+    override fun observeAllContent(): Flow<List<UserContent>> {
+        return remoteDataSource.observeAllContent()
+            .map { list ->
+                list.map { UserContentMapper.fromMap(it) }
             }
-            Result.success(contentList)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
     }
 
     override suspend fun deleteContent(contentId: String): Result<Unit> {
