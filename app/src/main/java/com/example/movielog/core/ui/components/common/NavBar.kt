@@ -19,24 +19,30 @@ fun BottomNavBar(navController: NavHostController) {
         BottomNavItem.Profile
     )
 
-    NavigationBar {
+    val currentRoute =
+        navController.currentBackStackEntryAsState().value?.destination?.route
 
-        val currentRoute =
-            navController.currentBackStackEntryAsState().value?.destination?.route
+    NavigationBar {
 
         items.forEach { item ->
 
             NavigationBarItem(
                 selected = currentRoute == item.route,
+
                 onClick = {
                     navController.navigate(item.route) {
-                        popUpTo(navController.graph.startDestinationId)
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
+
                 icon = {
-                    Icon(imageVector = item.icon, contentDescription = item.title)
+                    Icon(item.icon, contentDescription = item.title)
                 },
+
                 label = {
                     Text(item.title)
                 }
