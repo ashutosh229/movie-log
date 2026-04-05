@@ -37,13 +37,13 @@ class SearchRepositoryImpl(
                     .map { content ->
                         content to calculateRelevance(query, content.title)
                     }
-                    .filter { (_, score) ->
-//                        TODO: Store this hyperparameter in a config file
-                        score > 200
-                    }
+//                    TODO: decide later whether to filter or not because for now, you are doing exact search
+//                    .filter { (_, score) ->
+////                        TODO: Store this hyperparameter in a config file
+//                        score > 200
+//                    }
                     .sortedWith(
                         compareByDescending<Pair<Content, Int>> { it.second }
-                            .thenByDescending { it.first.rating ?: 0.0 }
                     )
                     .map { it.first }
                 Result.success(combined)
