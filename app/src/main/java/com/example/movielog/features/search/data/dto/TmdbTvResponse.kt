@@ -6,8 +6,9 @@ data class TmdbTvResponse(
 
 data class TmdbTvDto(
     val id: Int,
-    val name: String,
+    val name: String?,
     val poster_path: String?,
     val first_air_date: String?,
-    val vote_average: Double?
+    val original_language: String?,
+    val overview: String?,
 )

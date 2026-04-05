@@ -6,9 +6,13 @@ data class TmdbMovieResponse(
 
 data class TmdbMovieDto(
     val id: Int,
-    val title: String,
+    val title: String?,
     val poster_path: String?,
     val release_date: String?,
-    val vote_average: Double?
+    val overview: String?,
+    val original_language: String?
 )
+
+
+
 
