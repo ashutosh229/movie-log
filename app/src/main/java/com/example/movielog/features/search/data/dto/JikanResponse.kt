@@ -6,14 +6,39 @@ data class JikanResponse(
 
 data class JikanAnimeDto(
     val mal_id: Int,
-    val title: String,
-    val images: JikanImages,
+    val title_english: String?,
+    val title: String?,
+    val images: JikanImages?,
+    val aired: airedInformation?,
+    val synopsis: String?,
     val episodes: Int?,
-    val score: Double?
+    val score: Double?,
+    val type: String?,
+)
+
+data class airedInformation(
+    val prop: FromToInformation?
+)
+
+data class FromToInformation(
+    val from: FromInformation?,
+    val to: ToInformation?
+)
+
+data class FromInformation(
+    val day: Int?,
+    val month: Int?,
+    val year: Int?,
+)
+
+data class ToInformation(
+    val day: Int?,
+    val month: Int?,
+    val year: Int?,
 )
 
 data class JikanImages(
-    val jpg: JikanImageUrl
+    val webp: JikanImageUrl?
 )
 
 data class JikanImageUrl(
