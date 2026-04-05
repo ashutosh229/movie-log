@@ -25,7 +25,6 @@ object AuthManager {
     suspend fun login(email: String, password: String): AuthResult {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         auth.currentUser?.reload()?.await()
-//        TODO: is it fine to use reload
         return result
     }
 
