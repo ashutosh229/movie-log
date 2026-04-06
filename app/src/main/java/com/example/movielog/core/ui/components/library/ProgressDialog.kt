@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.example.movielog.features.library.domain.model.Progress
 import com.example.movielog.features.search.domain.model.ContentType
 
-//TODO: Add progressType in model
 enum class ProgressInputType {
     FULL_SEASON,
     EPISODE_COMPLETED,
@@ -40,7 +39,8 @@ fun ProgressDialog(
 
     var season by remember { mutableStateOf("") }
     var episode by remember { mutableStateOf("") }
-    var timestamp by remember { mutableStateOf("") }
+
+    var selectedSeconds by remember { mutableStateOf(0L) }
 
     var inputType by remember { mutableStateOf(ProgressInputType.FULL_SEASON) }
 
@@ -57,11 +57,9 @@ fun ProgressDialog(
         },
 
         text = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
 
-                // 🔥 Progress Type Selector (Only for Series/Anime)
+                // 🔥 Progress Type Selector (Series/Anime)
                 if (!isMovie) {
 
                     Text(
@@ -100,10 +98,8 @@ fun ProgressDialog(
                 if (!isMovie) {
                     OutlinedTextField(
                         value = season,
-                        onValueChange = { input ->
-                            if (input.all { it.isDigit() }) {
-                                season = input
-                            }
+                        onValueChange = {
+                            if (it.all { ch -> ch.isDigit() }) season = it
                         },
                         label = { Text("Season") },
                         singleLine = true,
@@ -113,14 +109,12 @@ fun ProgressDialog(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                // 🔹 EPISODE (only if not FULL_SEASON)
+                // 🔹 EPISODE
                 if (!isMovie && inputType != ProgressInputType.FULL_SEASON) {
                     OutlinedTextField(
                         value = episode,
-                        onValueChange = { input ->
-                            if (input.all { it.isDigit() }) {
-                                episode = input
-                            }
+                        onValueChange = {
+                            if (it.all { ch -> ch.isDigit() }) episode = it
                         },
                         label = { Text("Episode") },
                         singleLine = true,
@@ -130,29 +124,22 @@ fun ProgressDialog(
                     Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                // 🔹 TIMESTAMP (only for movies OR in-progress)
+                // 🔥 DURATION PICKER (NEW)
                 if (isMovie || inputType == ProgressInputType.EPISODE_IN_PROGRESS) {
-                    OutlinedTextField(
-                        value = timestamp,
-                        onValueChange = { input ->
-                            if (input.all { it.isDigit() }) {
-                                timestamp = input
-                            }
-                        },
-                        label = { Text("Timestamp (seconds)") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+
+                    DurationPicker { h, m, s ->
+                        selectedSeconds = (h * 3600 + m * 60 + s).toLong()
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
                 Text(
                     text = when {
-                        isMovie -> "Enter playback position in seconds"
+                        isMovie -> "Select playback time"
                         inputType == ProgressInputType.FULL_SEASON -> "Marks entire season as completed"
                         inputType == ProgressInputType.EPISODE_COMPLETED -> "Marks completion till selected episode"
-                        else -> "Track current playback within episode"
+                        else -> "Track playback inside episode"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -166,7 +153,7 @@ fun ProgressDialog(
 
                     val progress = if (isMovie) {
                         Progress.MovieProgress(
-                            timestamp = timestamp.toLongOrNull() ?: 0L
+                            timestamp = selectedSeconds
                         )
                     } else {
                         when (inputType) {
@@ -174,7 +161,7 @@ fun ProgressDialog(
                             ProgressInputType.FULL_SEASON -> {
                                 Progress.EpisodeProgress(
                                     season = season.toIntOrNull() ?: 1,
-                                    episode = Int.MAX_VALUE, // represents full season
+                                    episode = Int.MAX_VALUE,
                                     timestamp = 0L
                                 )
                             }
@@ -191,7 +178,7 @@ fun ProgressDialog(
                                 Progress.EpisodeProgress(
                                     season = season.toIntOrNull() ?: 1,
                                     episode = episode.toIntOrNull() ?: 1,
-                                    timestamp = timestamp.toLongOrNull() ?: 0L
+                                    timestamp = selectedSeconds
                                 )
                             }
                         }
@@ -202,7 +189,7 @@ fun ProgressDialog(
                 },
                 enabled =
                 if (isMovie) {
-                    timestamp.isNotBlank()
+                    selectedSeconds > 0
                 } else {
                     when (inputType) {
 
@@ -213,7 +200,9 @@ fun ProgressDialog(
                             season.isNotBlank() && episode.isNotBlank()
 
                         ProgressInputType.EPISODE_IN_PROGRESS ->
-                            season.isNotBlank() && episode.isNotBlank() && timestamp.isNotBlank()
+                            season.isNotBlank() &&
+                                    episode.isNotBlank() &&
+                                    selectedSeconds > 0
                     }
                 }
             ) {
