@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.movielog.core.utils.formatDuration
 import com.example.movielog.features.library.domain.model.Progress
 import com.example.movielog.features.library.domain.model.UserContent
 import com.example.movielog.features.library.domain.model.displayName
@@ -77,9 +78,7 @@ fun LibraryItem(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // Type + Status Row
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
 
                     Text(
                         text = content.type.name,
@@ -102,16 +101,38 @@ fun LibraryItem(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // Progress Section
+                // 🔥 Progress Section (UPDATED)
                 content.progress?.let { progress ->
 
                     val progressText = when (progress) {
+
+                        // 🎬 MOVIE
                         is Progress.MovieProgress -> {
-                            "Progress: ${progress.timestamp}s"
+                            formatDuration(progress.timestamp)
                         }
 
+                        // 📺 SERIES / ANIME
                         is Progress.EpisodeProgress -> {
-                            "S${progress.season} • E${progress.episode} • ${progress.timestamp}s"
+
+                            when {
+
+                                // ✅ FULL SEASON
+                                progress.episode == Int.MAX_VALUE -> {
+                                    "S${progress.season}"
+                                }
+
+                                // ✅ EPISODE COMPLETED (no timestamp)
+                                progress.timestamp == 0L -> {
+                                    "S${progress.season} • E${progress.episode}"
+                                }
+
+                                // ✅ TIMED PROGRESS
+                                else -> {
+                                    "S${progress.season} • E${progress.episode} • ${
+                                        formatDuration(progress.timestamp)
+                                    }"
+                                }
+                            }
                         }
                     }
 
