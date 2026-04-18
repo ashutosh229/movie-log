@@ -23,7 +23,6 @@ class AuthViewModel(
     private fun observeAuthState() {
         viewModelScope.launch {
             AuthManager.authState.collectLatest { firebaseUser ->
-
                 authState = if (firebaseUser != null) {
                     AuthState.Success(
                         User(
@@ -42,7 +41,6 @@ class AuthViewModel(
         viewModelScope.launch {
             authState = AuthState.Loading
             repository.register(email, password)
-            // ❌ DO NOT set state manually here anymore
         }
     }
 
@@ -50,12 +48,26 @@ class AuthViewModel(
         viewModelScope.launch {
             authState = AuthState.Loading
             repository.login(email, password)
-            // ❌ DO NOT set state manually
+        }
+    }
+
+    fun sendPasswordResetEmail(
+        email: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            repository.sendPasswordResetEmail(email.trim())
+                .onSuccess {
+                    onSuccess()
+                }
+                .onFailure { throwable ->
+                    onFailure(throwable.message ?: "Unable to send password reset email.")
+                }
         }
     }
 
     fun logout() {
         repository.logout()
-        // ❌ DO NOT set state manually
     }
 }
