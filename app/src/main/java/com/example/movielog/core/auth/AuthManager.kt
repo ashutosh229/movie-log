@@ -1,8 +1,10 @@
 package com.example.movielog.core.auth
 
 import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.tasks.await
@@ -11,7 +13,6 @@ object AuthManager {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // 🔥 Reactive auth state
     private val _authState = MutableStateFlow<FirebaseUser?>(auth.currentUser)
     val authState: StateFlow<FirebaseUser?> = _authState
 
@@ -21,14 +22,12 @@ object AuthManager {
         }
     }
 
-    // ✅ FIXED (use await)
     suspend fun login(email: String, password: String): AuthResult {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         auth.currentUser?.reload()?.await()
         return result
     }
 
-    // ✅ FIXED (use await)
     suspend fun register(email: String, password: String): AuthResult {
         return auth.createUserWithEmailAndPassword(email, password).await()
     }
@@ -39,6 +38,32 @@ object AuthManager {
 
     fun isLoggedIn(): Boolean {
         return auth.currentUser != null
+    }
+
+    fun requireCurrentUser(): FirebaseUser {
+        return auth.currentUser ?: throw IllegalStateException("User not logged in")
+    }
+
+    suspend fun updateDisplayName(displayName: String) {
+        val user = requireCurrentUser()
+        val request = userProfileChangeRequest {
+            this.displayName = displayName
+        }
+        user.updateProfile(request).await()
+        user.reload().await()
+        _authState.value = auth.currentUser
+    }
+
+    suspend fun reauthenticate(password: String) {
+        val user = requireCurrentUser()
+        val email = user.email ?: throw IllegalStateException("Current user email not available")
+        val credential = EmailAuthProvider.getCredential(email, password)
+        user.reauthenticate(credential).await()
+    }
+
+    suspend fun deleteCurrentUser() {
+        requireCurrentUser().delete().await()
+        _authState.value = null
     }
 
     fun logout() {
