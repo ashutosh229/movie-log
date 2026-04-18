@@ -1,21 +1,31 @@
 package com.example.movielog.features.profile.presentation.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -31,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +52,11 @@ import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewM
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private enum class ProfileSection {
+    PROFILE,
+    SETTINGS
+}
 
 @Composable
 fun ProfileScreen(
@@ -62,6 +78,8 @@ fun ProfileScreen(
         mutableStateOf(uiState.profile?.displayName.orEmpty())
     }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var selectedSection by remember { mutableStateOf(ProfileSection.PROFILE) }
 
     LaunchedEffect(Unit) {
         profileViewModel.startObserving()
@@ -136,11 +154,11 @@ fun ProfileScreen(
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Text(
-                                    text = "Account center",
+                                    text = "Account",
                                     style = MaterialTheme.typography.displayMedium
                                 )
                                 Text(
-                                    text = "View your account details, update your profile name, or permanently remove the account and its saved data.",
+                                    text = "Manage your profile, settings, and account actions from one place.",
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -168,30 +186,45 @@ fun ProfileScreen(
                     }
 
                     item {
-                        AccountDetailsCard(profile = profile)
+                        ProfileMenuCard(
+                            selectedSection = selectedSection,
+                            onProfileClick = { selectedSection = ProfileSection.PROFILE },
+                            onSettingsClick = { selectedSection = ProfileSection.SETTINGS },
+                            onLogoutClick = { showLogoutDialog = true }
+                        )
                     }
 
                     item {
-                        EditProfileCard(
-                            displayName = editedName,
-                            isDarkMode = isDarkMode,
-                            isSaving = uiState.isUpdating,
-                            onNameChange = { editedName = it },
-                            onThemeChange = { themeViewModel.setDarkMode(it) },
-                            onSave = {
-                                if (editedName.isNotBlank()) {
-                                    profileViewModel.updateProfile(editedName)
-                                }
+                        when (selectedSection) {
+                            ProfileSection.PROFILE -> ProfileSectionCard(
+                                title = "Profile",
+                                subtitle = "View your account details and update your public profile information."
+                            ) {
+                                AccountDetailsCard(profile = profile)
+                                EditProfileCard(
+                                    displayName = editedName,
+                                    isSaving = uiState.isUpdating,
+                                    onNameChange = { editedName = it },
+                                    onSave = {
+                                        if (editedName.isNotBlank()) {
+                                            profileViewModel.updateProfile(editedName)
+                                        }
+                                    }
+                                )
                             }
-                        )
-                    }
 
-                    item {
-                        DangerZoneCard(
-                            isDeleting = uiState.isDeleting,
-                            onDeleteClick = { showDeleteDialog = true },
-                            onLogout = onLogout
-                        )
+                            ProfileSection.SETTINGS -> ProfileSectionCard(
+                                title = "Settings",
+                                subtitle = "Control preferences and manage sensitive account actions."
+                            ) {
+                                SettingsCard(
+                                    isDarkMode = isDarkMode,
+                                    isDeleting = uiState.isDeleting,
+                                    onThemeChange = { themeViewModel.setDarkMode(it) },
+                                    onDeleteClick = { showDeleteDialog = true }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -209,10 +242,134 @@ fun ProfileScreen(
             }
         )
     }
+
+    if (showLogoutDialog) {
+        LogoutConfirmationDialog(
+            onDismiss = { showLogoutDialog = false },
+            onConfirm = {
+                showLogoutDialog = false
+                onLogout()
+            }
+        )
+    }
 }
 
 @Composable
-private fun AccountDetailsCard(profile: UserProfile) {
+private fun ProfileMenuCard(
+    selectedSection: ProfileSection,
+    onProfileClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            MenuItemRow(
+                title = "Profile",
+                subtitle = "Details and profile updates",
+                icon = Icons.Default.Person,
+                selected = selectedSection == ProfileSection.PROFILE,
+                onClick = onProfileClick
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            MenuItemRow(
+                title = "Settings",
+                subtitle = "Theme and account controls",
+                icon = Icons.Default.Settings,
+                selected = selectedSection == ProfileSection.SETTINGS,
+                onClick = onSettingsClick
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            MenuItemRow(
+                title = "Logout",
+                subtitle = "Sign out of this session",
+                icon = Icons.AutoMirrored.Filled.Logout,
+                selected = false,
+                onClick = onLogoutClick,
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun MenuItemRow(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
+    tint: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.primary
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .background(
+                if (selected) {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            )
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = tint.copy(alpha = 0.12f)
+            )
+        ) {
+            Box(
+                modifier = Modifier.padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = tint
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 14.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Default.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun ProfileSectionCard(
+    title: String,
+    subtitle: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Card(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
@@ -223,12 +380,37 @@ private fun AccountDetailsCard(profile: UserProfile) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
+            content = {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                content()
+            }
+        )
+    }
+}
+
+@Composable
+private fun AccountDetailsCard(profile: UserProfile) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text(
-                text = "Profile details",
-                style = MaterialTheme.typography.titleLarge
-            )
             DetailRow(label = "Name", value = profile.displayName)
             DetailRow(label = "Email", value = profile.email)
             DetailRow(label = "User ID", value = profile.uid)
@@ -241,82 +423,112 @@ private fun AccountDetailsCard(profile: UserProfile) {
 @Composable
 private fun EditProfileCard(
     displayName: String,
-    isDarkMode: Boolean,
     isSaving: Boolean,
     onNameChange: (String) -> Unit,
-    onThemeChange: (Boolean) -> Unit,
     onSave: () -> Unit
 ) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+        OutlinedTextField(
+            value = displayName,
+            onValueChange = onNameChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Display name") },
+            singleLine = true
+        )
+
+        Button(
+            onClick = onSave,
+            enabled = displayName.isNotBlank() && !isSaving
         ) {
-            Text(
-                text = "Update profile",
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            OutlinedTextField(
-                value = displayName,
-                onValueChange = onNameChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Display name") },
-                singleLine = true
-            )
-
-            Card(
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+            if (isSaving) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
                 )
+            } else {
+                Text("Save changes")
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsCard(
+    isDarkMode: Boolean,
+    isDeleting: Boolean,
+    onThemeChange: (Boolean) -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                androidx.compose.foundation.layout.Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Dark mode",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "Choose the viewing mode you want across the app.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Switch(
-                        checked = isDarkMode,
-                        onCheckedChange = onThemeChange
+                    Text(
+                        text = "Dark mode",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = "Choose the viewing mode you want across the app.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                Switch(
+                    checked = isDarkMode,
+                    onCheckedChange = onThemeChange
+                )
             }
+        }
 
-            Button(
-                onClick = onSave,
-                enabled = displayName.isNotBlank() && !isSaving
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                if (isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
+                Text(
+                    text = "Delete account",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Permanently remove your profile, library data, and account access.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(
+                    onClick = onDeleteClick,
+                    enabled = !isDeleting,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
                     )
-                } else {
-                    Text("Save changes")
+                ) {
+                    Text("Delete account")
                 }
             }
         }
@@ -324,47 +536,32 @@ private fun EditProfileCard(
 }
 
 @Composable
-private fun DangerZoneCard(
-    isDeleting: Boolean,
-    onDeleteClick: () -> Unit,
-    onLogout: () -> Unit
+private fun LogoutConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
 ) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text("Logout?")
+        },
+        text = {
             Text(
-                text = "Account actions",
-                style = MaterialTheme.typography.titleLarge
+                text = "Are you sure you want to log out of your current session?",
+                style = MaterialTheme.typography.bodyMedium
             )
-            Text(
-                text = "Logging out ends this session. Deleting the account permanently removes the profile, library, and account access.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Button(onClick = onLogout) {
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
                 Text("Logout")
             }
-            Button(
-                onClick = onDeleteClick,
-                enabled = !isDeleting,
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                )
-            ) {
-                Text("Delete account")
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -408,7 +605,7 @@ private fun DeleteAccountDialog(
             Button(
                 onClick = { onConfirm(password) },
                 enabled = !isDeleting && password.isNotBlank() && confirmation == "DELETE",
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError
                 )
