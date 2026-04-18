@@ -13,6 +13,10 @@ class FirebaseAuthDataSource {
         return AuthManager.login(email, password)
     }
 
+    suspend fun sendPasswordResetEmail(email: String) {
+        AuthManager.sendPasswordResetEmail(email)
+    }
+
     fun getCurrentUserId(): String? {
         return AuthManager.getCurrentUserId()
     }
