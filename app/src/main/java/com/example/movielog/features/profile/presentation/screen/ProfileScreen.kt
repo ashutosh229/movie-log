@@ -74,6 +74,7 @@ fun ProfileScreen(
         mutableStateOf(uiState.profile?.displayName.orEmpty())
     }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showPasswordResetDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     var selectedSection by remember { mutableStateOf(ProfileSection.PROFILE) }
 
@@ -215,8 +216,10 @@ fun ProfileScreen(
                             ) {
                                 SettingsCard(
                                     isDarkMode = isDarkMode,
+                                    isSendingResetEmail = uiState.isSendingResetEmail,
                                     isDeleting = uiState.isDeleting,
                                     onThemeChange = { themeViewModel.setDarkMode(it) },
+                                    onChangePasswordClick = { showPasswordResetDialog = true },
                                     onDeleteClick = { showDeleteDialog = true }
                                 )
                             }
@@ -234,6 +237,19 @@ fun ProfileScreen(
             onConfirm = { password ->
                 profileViewModel.deleteAccount(password) {
                     showDeleteDialog = false
+                }
+            }
+        )
+    }
+
+    if (showPasswordResetDialog && uiState.profile != null) {
+        PasswordResetDialog(
+            email = uiState.profile!!.email,
+            isSending = uiState.isSendingResetEmail,
+            onDismiss = { showPasswordResetDialog = false },
+            onConfirm = {
+                profileViewModel.sendPasswordResetEmail {
+                    showPasswordResetDialog = false
                 }
             }
         )
@@ -450,8 +466,10 @@ private fun EditProfileCard(
 @Composable
 private fun SettingsCard(
     isDarkMode: Boolean,
+    isSendingResetEmail: Boolean,
     isDeleting: Boolean,
     onThemeChange: (Boolean) -> Unit,
+    onChangePasswordClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Column(
@@ -494,6 +512,44 @@ private fun SettingsCard(
         Card(
             shape = RoundedCornerShape(18.dp),
             colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Change password",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "We will send a password reset email to your registered account email.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Button(
+                    onClick = onChangePasswordClick,
+                    enabled = !isSendingResetEmail
+                ) {
+                    if (isSendingResetEmail) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Change password")
+                    }
+                }
+            }
+        }
+
+        Card(
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.08f)
             )
         ) {
@@ -526,6 +582,52 @@ private fun SettingsCard(
             }
         }
     }
+}
+
+@Composable
+private fun PasswordResetDialog(
+    email: String,
+    isSending: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = {
+            if (!isSending) onDismiss()
+        },
+        title = {
+            Text("Change password")
+        },
+        text = {
+            Text(
+                text = "A password reset email will be sent to $email. After resetting the password, you will need to log in again with the new password.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !isSending
+            ) {
+                if (isSending) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Send email")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isSending
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
