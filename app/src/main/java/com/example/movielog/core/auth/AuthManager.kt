@@ -38,6 +38,10 @@ object AuthManager {
         auth.sendPasswordResetEmail(email).await()
     }
 
+    suspend fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
