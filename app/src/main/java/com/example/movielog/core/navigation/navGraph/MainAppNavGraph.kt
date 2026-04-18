@@ -13,6 +13,7 @@ import com.example.movielog.features.library.presentation.screen.HomeScreen
 import com.example.movielog.features.library.presentation.screen.LibraryScreen
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
 import com.example.movielog.features.profile.presentation.screen.ProfileScreen
+import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
 import com.example.movielog.features.search.presentation.screen.SearchScreen
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
 
@@ -22,6 +23,7 @@ fun MainAppNavGraph(
     searchViewModel: SearchViewModel,
     libraryRepository: LibraryRepository,
     libraryViewModel: LibraryViewModel,
+    profileViewModel: ProfileViewModel,
     themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -52,6 +54,7 @@ fun MainAppNavGraph(
                 onLogout = {
                     AuthManager.logout()
                 },
+                profileViewModel = profileViewModel,
                 themeViewModel = themeViewModel
             )
         }
