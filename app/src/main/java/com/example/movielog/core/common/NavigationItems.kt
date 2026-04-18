@@ -15,6 +15,6 @@ sealed class BottomNavItem(
     object Home : BottomNavItem(Routes.HOME, "Home", Icons.Default.Home)
     object Search : BottomNavItem(Routes.SEARCH, "Search", Icons.Default.Search)
     object Library : BottomNavItem(Routes.LIBRARY, "Library", Icons.Default.VideoLibrary)
-    object Profile : BottomNavItem(Routes.PROFILE, "Profile", Icons.Default.Person)
+    object Profile : BottomNavItem(Routes.PROFILE, "Account", Icons.Default.Person)
 }
 
