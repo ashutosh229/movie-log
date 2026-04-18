@@ -49,10 +49,6 @@ import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.profile.domain.model.UserProfile
 import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
 private enum class ProfileSection {
     PROFILE,
     SETTINGS
@@ -413,9 +409,6 @@ private fun AccountDetailsCard(profile: UserProfile) {
         ) {
             DetailRow(label = "Name", value = profile.displayName)
             DetailRow(label = "Email", value = profile.email)
-            DetailRow(label = "User ID", value = profile.uid)
-            DetailRow(label = "Created", value = formatTimestamp(profile.createdAt))
-            DetailRow(label = "Last updated", value = formatTimestamp(profile.updatedAt))
         }
     }
 }
@@ -687,10 +680,4 @@ private fun DetailRow(label: String, value: String) {
             textAlign = TextAlign.Start
         )
     }
-}
-
-private fun formatTimestamp(timestamp: Long?): String {
-    if (timestamp == null) return "Not available"
-    val formatter = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-    return formatter.format(Date(timestamp))
 }
