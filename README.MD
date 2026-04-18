@@ -1,152 +1,298 @@
-# 🎬 MovieLog
+# MovieLog
 
-**MovieLog** is a modern Android application built using **Jetpack Compose**, designed to help users
-**track movies, TV series, and anime** efficiently. It provides a seamless experience for searching
-content, managing personal watchlists, and tracking progress — all powered by a clean architecture
-and scalable design.
+MovieLog is a modern Android application for tracking movies, TV series, and anime in a single personal library. It is built with Jetpack Compose and follows a feature-oriented Clean Architecture + MVVM structure, with Firebase handling authentication and user-scoped persistence.
 
----
+The app is designed around a simple idea: discovery and tracking should feel fast, clear, and personal. Users can search across multiple content sources, add titles to their own library, track progress for both films and episodic content, and manage account-level settings such as theme and password recovery.
 
-## 🚀 Features
+## Overview
 
-### 🔐 Authentication
+MovieLog helps users:
 
-- Firebase Authentication (Email & Password)
-- Global auth state management
-- Persistent login sessions
+- search movies and TV shows through TMDB
+- search anime through Jikan
+- save titles into a private library tied to their own account
+- organize content by watch status
+- track progress for movies and episodic content
+- manage account details, theme preferences, password resets, and logout/account deletion flows
 
-### 🔍 Search
+## Key Features
 
-- Search Movies, Series, and Anime
-- Integrated with:
-    - TMDB API (Movies & Series)
-    - Jikan API (Anime)
-- Clean and responsive UI
+### Authentication
 
-### 📚 Library Management
+- Email/password sign up and login with Firebase Authentication
+- Persistent authenticated sessions
+- Forgot password flow from the login screen
+- Password reset flow from the in-app account settings
+- Logout confirmation flow
+- Account deletion flow with re-authentication and data cleanup
 
-- Add content to library with status:
-    - Ongoing
-    - Completed
-    - To Watch
-    - Repository
-- Update progress:
-    - Movie → Timestamp
-    - Series/Anime → Season, Episode, Timestamp
-- Delete content
-- User-specific data isolation (Firestore)
+### Search
 
-### 📊 Progress Tracking
+- Unified discovery flow for:
+- movies
+- TV series
+- anime
+- TMDB-backed search for movies and TV
+- Jikan-backed search for anime
+- Search results can be added directly into the user library
 
-- Track watch progress per content
-- Supports both movies and episodic content
+### Personal Library
 
-### 🧭 Navigation
+- User-scoped Firestore library storage
+- Watch status support:
+- Ongoing
+- To Watch
+- Completed
+- Repository
+- Progress tracking support:
+- movies by timestamp
+- series/anime by season, episode, and timestamp
+- Update and delete actions for saved entries
 
-- Bottom Navigation Bar with:
-    - Home
-    - Search
-    - Library
-    - Profile
-- State-preserving navigation
-- Auth-based navigation flow (AuthNavGraph + MainAppNavGraph)
+### Account and Settings
 
-### 🎨 UI/UX
+- Account hub with menu-based navigation
+- Profile section for viewing basic account information and updating the display name
+- Settings section for:
+- dark mode
+- password change via reset email
+- account deletion
+- Theme preference persisted locally across app restarts
 
-- Built with **Material 3**
-- Consistent design system
-- Dark Mode support 🌙
-- Clean, responsive layouts
-- Modular reusable components
+### UI
 
-### 👤 Profile
+- Jetpack Compose UI with Material 3
+- Bottom navigation based app shell
+- Feature-oriented reusable component structure
+- Light and dark theme support
+- Scalable account/settings layout for future additions
 
-- User session management
-- Logout functionality
-- Theme toggle (Light/Dark)
+## Tech Stack
 
----
+| Area | Technology |
+|---|---|
+| Language | Kotlin |
+| UI | Jetpack Compose, Material 3 |
+| State | StateFlow, ViewModel |
+| Navigation | Navigation Compose |
+| Backend | Firebase Authentication, Cloud Firestore |
+| Networking | Retrofit, OkHttp |
+| Image Loading | Coil |
+| Async | Kotlin Coroutines |
 
-## 🏗️ Architecture
+## Architecture
 
-This project follows **Clean Architecture + MVVM** principles.
+This project follows a feature-first structure with Clean Architecture and MVVM principles.
 
-### 🔹 Key Patterns
+Core design choices:
 
-- MVVM (Model-View-ViewModel)
-- Repository Pattern
-- StateFlow for reactive state management
-- Single source of truth for UI state
+- presentation logic lives in feature-specific screens, state models, and view models
+- domain contracts define repositories and business-facing models
+- data layers implement repositories and connect to Firebase or external APIs
+- shared concerns such as theming, navigation, auth helpers, and reusable UI live under `core`
 
----
+Typical flow:
 
-## 🧱 Tech Stack
+```text
+UI -> ViewModel -> Repository -> Remote Data Source -> Firebase / External API
+```
 
-| Layer         | Technology                         |
-|---------------|------------------------------------|
-| UI            | Jetpack Compose, Material 3        |
-| State         | StateFlow, ViewModel               |
-| Backend       | Firebase Authentication, Firestore |
-| Networking    | Retrofit (TMDB, Jikan APIs)        |
-| Image Loading | Coil                               |
-| Async         | Kotlin Coroutines                  |
+This separation keeps the app easier to test, scale, and extend as new features are added.
 
----
+## Project Structure
 
-## 🔄 Data Flow
+```text
+app/src/main/java/com/example/movielog/
+|
+|-- core/
+|   |-- auth/
+|   |-- common/
+|   |-- navigation/
+|   |-- network/
+|   |-- ui/
+|   |   |-- components/
+|   |   `-- theme/
+|   `-- utils/
+|
+|-- features/
+|   |-- auth/
+|   |-- library/
+|   |-- profile/
+|   `-- search/
+|
+`-- MainActivity.kt
+```
 
-UI → ViewModel → Repository → Remote Data Source → Firebase / APIs
-↑
-Mapper Layer
+## Production-Oriented Notes
 
----
+The repository already includes several patterns that move it toward a production-ready foundation:
 
-## 🧪 Future Enhancements
+- user data is isolated under `users/{uid}` in Firestore
+- account-sensitive flows such as deletion require explicit confirmation
+- password reset is handled through email-based Firebase flows instead of direct client-side password mutation
+- navigation is split into auth and main app graphs
+- theme preference is persisted locally instead of staying only in memory
 
-1. 🔄 Real-time Firestore sync (snapshot listeners)
-2. 💾 Offline caching (Room DB)
-3. 🎬 Content Detail Screen
-4. 🔔 Notifications & reminders
-5. 📈 User analytics (watch stats)
-6. 🎨 Dynamic theming (Material You)
-7. 🔍 Advanced filters & sorting
+There are also still some areas that can be improved further for production hardening:
 
---- 
+- move API keys and runtime config into a secure configuration strategy
+- replace broad network logging with environment-aware logging rules
+- add unit tests and UI tests for key flows
+- improve offline behavior and caching
+- add stronger Firestore field validation rules
 
-## 🧠 Key Learnings
+## Getting Started
 
-- Global auth state management with StateFlow
-- Navigation architecture in Compose
-- Firestore user-scoped data handling
-- Clean separation of concerns
-- Building scalable UI systems
+### Prerequisites
 
---- 
+- Android Studio
+- JDK 11+
+- A Firebase project with Authentication and Firestore enabled
+- A TMDB API key
+- An Android device or emulator
 
-## 🤝 Contributing
+### Firebase Setup
 
-Contributions are welcome!
+1. Create a Firebase project.
+2. Enable Email/Password authentication.
+3. Enable Cloud Firestore.
+4. Add your Android app to Firebase.
+5. Download `google-services.json`.
+6. Place it inside:
 
-1. Fork the repo
+```text
+app/google-services.json
+```
+
+### Firestore Rules
+
+MovieLog uses both the user profile document and the user library subcollection. A minimal rule set should allow users to access only their own documents.
+
+Example:
+
+```firestore
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/library/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+### API Setup
+
+The app uses:
+
+- TMDB for movies and TV series
+- Jikan for anime
+
+The repository currently includes base URLs in the network layer and a `config.json` file under the app source tree, but TMDB requests still require a valid API key at runtime. If you plan to open source or deploy this project publicly, move secret handling to a safer configuration mechanism before release.
+
+### Build and Run
+
+1. Open the project in Android Studio.
+2. Sync Gradle.
+3. Make sure Firebase is configured correctly.
+4. Run the app on an emulator or physical device.
+
+If you prefer the command line:
+
+```bash
+./gradlew assembleDebug
+```
+
+On Windows:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+## Current App Modules
+
+### Auth
+
+Handles:
+
+- registration
+- login
+- password recovery
+- auth state observation
+
+### Search
+
+Handles:
+
+- content discovery across external providers
+- content normalization into app-facing models
+- search result presentation
+
+### Library
+
+Handles:
+
+- user content persistence
+- watch status organization
+- progress updates
+- delete/update operations
+
+### Profile
+
+Handles:
+
+- profile observation
+- display name updates
+- password reset from the signed-in account
+- logout flow
+- account deletion
+
+## UX Highlights
+
+- menu-style account screen designed for future expansion
+- simplified user-facing profile details
+- progress shown only where it provides value
+- persistent theme selection across sessions
+- confirmation dialogs for destructive or session-ending actions
+
+## Roadmap
+
+Planned or valuable future improvements include:
+
+- richer content detail screens
+- advanced filters and sorting
+- analytics and watch insights
+- recommendations
+- offline caching with Room
+- stronger loading/error instrumentation
+- improved image-loading performance
+- automated testing coverage
+
+## Contributing
+
+Contributions, suggestions, and improvements are welcome.
+
+A good contribution flow:
+
+1. Fork the repository
 2. Create a feature branch
-3. Commit changes
-4. Open a Pull Request
+3. Make focused changes
+4. Verify the app builds successfully
+5. Open a pull request with a clear summary
 
---- 
+## License
 
-## 📜 License
+This project is licensed under the MIT License. See the [LICENSE](C:/Users/akuma/AndroidStudioProjects/MovieLog/LICENSE) file for details.
 
-This project is licensed under the MIT License.
-
----
-
-## 👨‍💻 Author
+## Author
 
 Ashutosh Kumar Jha
 
----
+## Support
 
-## ⭐ Support
-
-If you like this project, consider giving it a ⭐ on GitHub!
-
+If you find the project useful, starring the repository is a simple way to support it.
