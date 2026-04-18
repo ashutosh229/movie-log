@@ -40,17 +40,22 @@ class AuthRepositoryImpl(
         }
     }
 
-    // 🔥 FIXED
-//    TODO: firestore instance ka dekhna hain woh multiuser same data wala issue
-//    TODO: is function ke uses dekhne hain and unko hatana hain
+    override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+        return try {
+            dataSource.sendPasswordResetEmail(email)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override fun getCurrentUser(): User? {
         val uid = dataSource.getCurrentUserId()
 
         return uid?.let {
             User(
                 uid = it,
-                email = null  // ⚠️ Firebase doesn't expose email here safely without user object
-//                TODO: when there will be use of email, think something
+                email = null
             )
         }
     }
