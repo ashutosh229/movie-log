@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,10 +44,13 @@ fun LoginScreen(
     onSwitchToSignup: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
+    var isSendingResetEmail by remember { mutableStateOf(false) }
+    var resetMessage by remember { mutableStateOf<String?>(null) }
+    var resetError by remember { mutableStateOf<String?>(null) }
 
     val state = viewModel.authState
 
@@ -57,14 +61,12 @@ fun LoginScreen(
     }
 
     Scaffold { innerPadding ->
-
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             color = MaterialTheme.colorScheme.background
         ) {
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -72,8 +74,6 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                // Title
                 Text(
                     text = "Welcome Back",
                     style = MaterialTheme.typography.headlineMedium
@@ -81,23 +81,23 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Card Container
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.large,
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-
                     Column(
                         modifier = Modifier
                             .padding(16.dp)
                             .fillMaxWidth()
                     ) {
-
-                        // Email
                         OutlinedTextField(
                             value = email,
-                            onValueChange = { email = it },
+                            onValueChange = {
+                                email = it
+                                resetError = null
+                                resetMessage = null
+                            },
                             label = { Text("Email") },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
@@ -105,7 +105,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Password
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
@@ -137,9 +136,15 @@ fun LoginScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        TextButton(
+                            onClick = { showForgotPasswordDialog = true },
+                            modifier = Modifier.align(Alignment.End)
+                        ) {
+                            Text("Forgot password?")
+                        }
 
-                        // Login Button
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Button(
                             onClick = {
                                 viewModel.login(email, password)
@@ -159,7 +164,6 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // Switch to Signup
                         TextButton(
                             onClick = onSwitchToSignup,
                             modifier = Modifier.fillMaxWidth()
@@ -171,18 +175,111 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Error / Loading messages
-                when (state) {
-                    is AuthState.Error -> {
+                when {
+                    resetError != null -> {
+                        Text(
+                            text = resetError!!,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+
+                    resetMessage != null -> {
+                        Text(
+                            text = resetMessage!!,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    state is AuthState.Error -> {
                         Text(
                             text = state.message,
                             color = MaterialTheme.colorScheme.error
                         )
                     }
-
-                    else -> {}
                 }
             }
         }
     }
+
+    if (showForgotPasswordDialog) {
+        ForgotPasswordDialog(
+            email = email,
+            isSending = isSendingResetEmail,
+            onDismiss = { showForgotPasswordDialog = false },
+            onConfirm = {
+                if (email.isBlank()) {
+                    resetError = "Enter your email address first."
+                    showForgotPasswordDialog = false
+                    return@ForgotPasswordDialog
+                }
+
+                isSendingResetEmail = true
+                resetError = null
+                resetMessage = null
+
+                viewModel.sendPasswordResetEmail(
+                    email = email,
+                    onSuccess = {
+                        isSendingResetEmail = false
+                        showForgotPasswordDialog = false
+                        resetMessage = "Password reset email sent. Use the link in your inbox to set a new password."
+                    },
+                    onFailure = { message ->
+                        isSendingResetEmail = false
+                        resetError = message
+                    }
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun ForgotPasswordDialog(
+    email: String,
+    isSending: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = {
+            if (!isSending) onDismiss()
+        },
+        title = {
+            Text("Forgot password")
+        },
+        text = {
+            Text(
+                text = if (email.isBlank()) {
+                    "Enter your account email on the login screen first. We will send a password reset email there."
+                } else {
+                    "A password reset email will be sent to $email. Use the link in that email to set your new password."
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !isSending
+            ) {
+                if (isSending) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Send email")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isSending
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
 }
