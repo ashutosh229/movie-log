@@ -8,5 +8,7 @@ interface ProfileRepository {
 
     suspend fun updateProfile(displayName: String): Result<Unit>
 
+    suspend fun sendPasswordResetEmail(): Result<Unit>
+
     suspend fun deleteAccount(password: String): Result<Unit>
 }
