@@ -27,6 +27,15 @@ class ProfileRepositoryImpl(
         }
     }
 
+    override suspend fun sendPasswordResetEmail(): Result<Unit> {
+        return try {
+            AuthManager.sendPasswordResetEmail()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun deleteAccount(password: String): Result<Unit> {
         return try {
             AuthManager.reauthenticate(password)
