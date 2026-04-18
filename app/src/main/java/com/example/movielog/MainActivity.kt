@@ -16,6 +16,9 @@ import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
 import com.example.movielog.features.library.data.remote.LibraryRemoteDataSource
 import com.example.movielog.features.library.data.repository.LibraryRepositoryImpl
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
+import com.example.movielog.features.profile.data.remote.ProfileRemoteDataSource
+import com.example.movielog.features.profile.data.repository.ProfileRepositoryImpl
+import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
 import com.example.movielog.features.search.data.remote.SearchRemoteDataSource
 import com.example.movielog.features.search.data.repository.SearchRepositoryImpl
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
@@ -44,6 +47,12 @@ class MainActivity : ComponentActivity() {
         val libraryViewModel = LibraryViewModel(
             libraryRepository
         )
+        val profileRepository = ProfileRepositoryImpl(
+            ProfileRemoteDataSource()
+        )
+        val profileViewModel = ProfileViewModel(
+            profileRepository
+        )
         setContent {
             val themeViewModel: ThemeViewModel = viewModel()
             val isDarkMode by themeViewModel.isDarkMode.collectAsState()
@@ -53,6 +62,7 @@ class MainActivity : ComponentActivity() {
                     searchViewModel,
                     libraryRepository,
                     libraryViewModel,
+                    profileViewModel,
                     themeViewModel
                 )
             }
