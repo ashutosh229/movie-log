@@ -10,6 +10,7 @@ import com.example.movielog.core.ui.components.common.BottomNavBar
 import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
+import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
 
 @Composable
@@ -17,6 +18,7 @@ fun MainAppContainer(
     searchViewModel: SearchViewModel,
     libraryRepository: LibraryRepository,
     libraryViewModel: LibraryViewModel,
+    profileViewModel: ProfileViewModel,
     themeViewModel: ThemeViewModel
 ) {
     val navController = rememberNavController()
@@ -32,6 +34,7 @@ fun MainAppContainer(
             searchViewModel = searchViewModel,
             libraryRepository = libraryRepository,
             libraryViewModel = libraryViewModel,
+            profileViewModel = profileViewModel,
             themeViewModel = themeViewModel,
             modifier = Modifier.padding(innerPadding)
         )
