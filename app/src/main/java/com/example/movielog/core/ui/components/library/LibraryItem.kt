@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +27,7 @@ import coil.compose.AsyncImage
 import com.example.movielog.core.utils.formatDuration
 import com.example.movielog.features.library.domain.model.Progress
 import com.example.movielog.features.library.domain.model.UserContent
+import com.example.movielog.features.library.domain.model.WatchStatus
 import com.example.movielog.features.library.domain.model.displayName
 
 @Composable
@@ -103,23 +103,15 @@ fun LibraryItem(
                     }
                 }
 
-                content.progress?.let { progress ->
+                if (content.status == WatchStatus.ONGOING) {
+                    content.progress?.let { progress ->
                     Text(
                         text = progressLabel(progress),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                } ?: Text(
-                    text = "No progress saved yet",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Text(
-                    text = "Tap for progress, status, or delete actions",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                    }
+                }
             }
         }
     }
