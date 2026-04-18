@@ -32,6 +32,12 @@ object AuthManager {
         return auth.createUserWithEmailAndPassword(email, password).await()
     }
 
+    suspend fun sendPasswordResetEmail() {
+        val email = requireCurrentUser().email
+            ?: throw IllegalStateException("Current user email not available")
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
