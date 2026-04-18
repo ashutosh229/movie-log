@@ -95,6 +95,38 @@ class ProfileViewModel(
         }
     }
 
+    fun sendPasswordResetEmail(onEmailSent: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isSendingResetEmail = true,
+                    message = null,
+                    error = null
+                )
+            }
+
+            repository.sendPasswordResetEmail()
+                .onSuccess {
+                    _uiState.update {
+                        it.copy(
+                            isSendingResetEmail = false,
+                            message = "Password reset email sent. Please set your new password and log in again."
+                        )
+                    }
+                    AuthManager.logout()
+                    onEmailSent()
+                }
+                .onFailure { throwable ->
+                    _uiState.update {
+                        it.copy(
+                            isSendingResetEmail = false,
+                            error = throwable.message ?: "Unable to send password reset email."
+                        )
+                    }
+                }
+        }
+    }
+
     fun deleteAccount(password: String, onDeleted: () -> Unit) {
         viewModelScope.launch {
             _uiState.update { it.copy(isDeleting = true, message = null, error = null) }
