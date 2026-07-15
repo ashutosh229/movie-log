@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object NetworkModule {
 
@@ -17,6 +18,18 @@ object NetworkModule {
     }
 
     private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(60, TimeUnit.SECONDS)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor { chain ->
+            val request = chain.request()
+            android.util.Log.d("TMDB_REQUEST", request.url.toString())
+            val response = chain.proceed(request)
+            android.util.Log.d("TMDB_RESPONSE", response.code.toString())
+            val responseBody = response.peekBody(Long.MAX_VALUE)
+            android.util.Log.d("TMDB_BODY", responseBody.string())
+            response
+        }
         .addInterceptor(loggingInterceptor)
         .build()
 

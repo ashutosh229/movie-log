@@ -18,7 +18,7 @@ class SearchRepositoryImpl(
 
                 val moviesDeferred = async { remoteDataSource.searchMovies(query) }
                 val tvDeferred = async { remoteDataSource.searchTvSeries(query) }
-                val animeDeferred = async { remoteDataSource.searchAnime(query) }
+//                val animeDeferred = async { remoteDataSource.searchAnime(query) }
 
                 val movies = moviesDeferred.await().results.map {
                     ContentMapper.mapMovieDtoToContent(it)
@@ -28,12 +28,13 @@ class SearchRepositoryImpl(
                     ContentMapper.mapTvDtoToContent(it)
                 }
 
-                val anime = animeDeferred.await().data.map {
-                    ContentMapper.mapAnimeDtoToContent(it)
-                }
+//                val anime = animeDeferred.await().data.map {
+//                    ContentMapper.mapAnimeDtoToContent(it)
+//                }
 
 //                TODO: Apply deduplication further
-                val combined = (movies + series + anime)
+                val combined = (movies + series)
+//                val combined = (movies + series + anime)
                     .map { content ->
                         content to calculateRelevance(query, content.title)
                     }
