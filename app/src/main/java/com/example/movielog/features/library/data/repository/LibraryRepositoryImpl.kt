@@ -17,7 +17,8 @@ class LibraryRepositoryImpl(
             remoteDataSource.addOrUpdateContent(map)
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            throw e
         }
     }
 
@@ -34,7 +35,8 @@ class LibraryRepositoryImpl(
             remoteDataSource.deleteContent(contentId)
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            throw e
         }
     }
 }

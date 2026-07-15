@@ -50,7 +50,9 @@ class SearchRepositoryImpl(
             }
 
         } catch (e: Exception) {
-            Result.failure(e)
+//            TODO: Change it later to better logging
+            e.printStackTrace()
+            throw e
         }
     }
 }

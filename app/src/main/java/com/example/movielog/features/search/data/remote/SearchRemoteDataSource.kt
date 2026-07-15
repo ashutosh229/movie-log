@@ -12,7 +12,7 @@ class SearchRemoteDataSource {
 
     //    TODO: Need to think of env variables
 //    TODO: Need to think of jikan API
-    private val tmdbApiKey = "ea41e93397072c9e58b2602a197434b7"
+    private val tmdbApiKey = "a400a0ef1fe844ae51c9e73d7aa9df56"
 
     suspend fun searchMovies(query: String): TmdbMovieResponse {
         return tmdbApi.searchMovies(query, tmdbApiKey)

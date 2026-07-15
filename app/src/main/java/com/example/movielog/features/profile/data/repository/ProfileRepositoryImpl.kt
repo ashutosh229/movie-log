@@ -23,7 +23,8 @@ class ProfileRepositoryImpl(
             remoteDataSource.updateProfile(displayName)
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            throw e
         }
     }
 
@@ -32,7 +33,8 @@ class ProfileRepositoryImpl(
             AuthManager.sendPasswordResetEmail()
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            throw e
         }
     }
 
@@ -43,7 +45,8 @@ class ProfileRepositoryImpl(
             AuthManager.deleteCurrentUser()
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            throw e
         }
     }
 }

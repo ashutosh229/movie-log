@@ -20,7 +20,9 @@ class AuthRepositoryImpl(
                 )
             )
         } catch (e: Exception) {
-            Result.failure(e)
+//            TODO:
+            e.printStackTrace()
+            throw e
         }
     }
 
@@ -36,7 +38,9 @@ class AuthRepositoryImpl(
                 )
             )
         } catch (e: Exception) {
-            Result.failure(e)
+//            TODO
+            e.printStackTrace()
+            throw e
         }
     }
 
@@ -45,7 +49,8 @@ class AuthRepositoryImpl(
             dataSource.sendPasswordResetEmail(email)
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            e.printStackTrace()
+            throw e
         }
     }
 
