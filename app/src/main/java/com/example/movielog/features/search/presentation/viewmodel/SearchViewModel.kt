@@ -49,18 +49,26 @@ class SearchViewModel(
 
                             emit(SearchUiState.Loading)
 
-                            val result = repository.searchContent(query)
+                            try {
+                                val result = repository.searchContent(query)
 
-                            emit(
-                                result.fold(
-                                    onSuccess = { SearchUiState.Success(it) },
-                                    onFailure = {
-                                        SearchUiState.Error(
-                                            it.message ?: "Unknown error"
-                                        )
-                                    }
+                                emit(
+                                    result.fold(
+                                        onSuccess = { SearchUiState.Success(it) },
+                                        onFailure = {
+                                            SearchUiState.Error(
+                                                it.message ?: "Unknown error"
+                                            )
+                                        }
+                                    )
                                 )
-                            )
+                            } catch (e: Exception) {
+                                emit(
+                                    SearchUiState.Error(
+                                        e.message ?: "Network error"
+                                    )
+                                )
+                            }
                         }
                     }
                 }

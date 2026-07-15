@@ -18,7 +18,7 @@ class LibraryRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 
@@ -36,7 +36,7 @@ class LibraryRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 }

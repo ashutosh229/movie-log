@@ -24,7 +24,7 @@ class ProfileRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 
@@ -34,7 +34,7 @@ class ProfileRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 
@@ -46,7 +46,7 @@ class ProfileRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 }

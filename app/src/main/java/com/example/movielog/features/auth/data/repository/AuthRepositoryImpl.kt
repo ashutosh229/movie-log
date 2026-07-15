@@ -20,9 +20,8 @@ class AuthRepositoryImpl(
                 )
             )
         } catch (e: Exception) {
-//            TODO:
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 
@@ -38,9 +37,8 @@ class AuthRepositoryImpl(
                 )
             )
         } catch (e: Exception) {
-//            TODO
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 
@@ -50,7 +48,7 @@ class AuthRepositoryImpl(
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
-            throw e
+            Result.failure(e)
         }
     }
 
