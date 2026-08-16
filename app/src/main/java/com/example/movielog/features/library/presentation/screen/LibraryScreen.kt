@@ -13,10 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -51,6 +58,7 @@ fun LibraryScreen(
     var selectedTab by remember { mutableStateOf(WatchStatus.ONGOING) }
     var showActionSheet by remember { mutableStateOf(false) }
     var showProgressDialog by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     val tabs = listOf(
         WatchStatus.ONGOING,
@@ -98,7 +106,17 @@ fun LibraryScreen(
 
                 is LibraryUiState.Success -> {
                     val allData = (uiState as LibraryUiState.Success).data
-                    val filteredData = allData.filter { it.status == selectedTab }
+
+                    val filteredData = if (searchQuery.isBlank()) {
+                        allData.filter { it.status == selectedTab }
+                    } else {
+                        allData.filter {
+                            it.title.contains(
+                                searchQuery.trim(),
+                                ignoreCase = true
+                            )
+                        }
+                    }
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -116,7 +134,9 @@ fun LibraryScreen(
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.surface
                                 ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                                elevation = CardDefaults.cardElevation(
+                                    defaultElevation = 8.dp
+                                )
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -136,17 +156,69 @@ fun LibraryScreen(
                                         text = "Your watch universe",
                                         style = MaterialTheme.typography.displayMedium
                                     )
+
                                     Text(
                                         text = "Keep everything sorted by status and update progress whenever you stop mid-episode or mid-scene.",
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
+
                                     Text(
                                         text = "${allData.size} saved title${if (allData.size == 1) "" else "s"}",
                                         style = MaterialTheme.typography.labelLarge,
                                         color = MaterialTheme.colorScheme.primary
                                     )
+
+                                    OutlinedTextField(
+                                        value = searchQuery,
+                                        onValueChange = {
+                                            searchQuery = it
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        singleLine = true,
+                                        shape = RoundedCornerShape(20.dp),
+                                        placeholder = {
+                                            Text("Search your library")
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.Search,
+                                                contentDescription = "Search library"
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            if (searchQuery.isNotEmpty()) {
+                                                IconButton(
+                                                    onClick = {
+                                                        searchQuery = ""
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Close,
+                                                        contentDescription = "Clear search"
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                    )
                                 }
+                            }
+                        }
+
+                        if (searchQuery.isNotBlank()) {
+                            item {
+                                Text(
+                                    text = "Showing results from your entire library",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
                             }
                         }
 
@@ -154,13 +226,17 @@ fun LibraryScreen(
                             ScrollableTabRow(
                                 selectedTabIndex = tabs.indexOf(selectedTab),
                                 edgePadding = 0.dp,
-                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                                containerColor = MaterialTheme.colorScheme.surface.copy(
+                                    alpha = 0.92f
+                                ),
                                 divider = {}
                             ) {
                                 tabs.forEach { status ->
                                     Tab(
                                         selected = selectedTab == status,
-                                        onClick = { selectedTab = status },
+                                        onClick = {
+                                            selectedTab = status
+                                        },
                                         text = {
                                             Text(
                                                 text = status.displayName(),
@@ -178,10 +254,17 @@ fun LibraryScreen(
 
                         if (filteredData.isEmpty()) {
                             item {
-                                LibraryStateCard(
-                                    title = "Nothing in ${selectedTab.displayName()} yet",
-                                    description = "Add something from Search and it will show up here with status and progress details."
-                                )
+                                if (searchQuery.isBlank()) {
+                                    LibraryStateCard(
+                                        title = "Nothing in ${selectedTab.displayName()} yet",
+                                        description = "Add something from Search and it will show up here with status and progress details."
+                                    )
+                                } else {
+                                    LibraryStateCard(
+                                        title = "No matching titles",
+                                        description = "No title in your library matches \"$searchQuery\"."
+                                    )
+                                }
                             }
                         } else {
                             items(filteredData) { item ->
@@ -280,7 +363,9 @@ private fun LibraryStateCard(
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
