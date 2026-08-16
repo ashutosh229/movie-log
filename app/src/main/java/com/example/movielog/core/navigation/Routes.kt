@@ -7,4 +7,5 @@ object Routes {
     const val SEARCH = "search"
     const val LIBRARY = "library"
     const val PROFILE = "profile"
+    const val ANALYTICS = "analytics"
 }
