@@ -1,5 +1,6 @@
 package com.example.movielog.features.search.data.mapper
 
+import com.example.movielog.core.config.ApiConfig
 import com.example.movielog.features.search.data.dto.JikanAnimeDto
 import com.example.movielog.features.search.data.dto.TmdbMovieDto
 import com.example.movielog.features.search.data.dto.TmdbTvDto
@@ -8,8 +9,7 @@ import com.example.movielog.features.search.domain.model.ContentType
 
 object ContentMapper {
 
-    //    TODO: Move this to config file
-    private const val TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+    private const val TMDB_IMAGE_BASE_URL = ApiConfig.TMDB_IMAGE_BASE_URL
 
     fun mapMovieDtoToContent(dto: TmdbMovieDto): Content {
         return Content(
