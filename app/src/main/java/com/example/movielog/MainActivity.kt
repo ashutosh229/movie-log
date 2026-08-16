@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.movielog.core.navigation.AppNavGraph
 import com.example.movielog.core.ui.theme.MovieLogTheme
 import com.example.movielog.core.ui.theme.ThemeViewModel
+import com.example.movielog.features.analytics.presentation.viewmodel.AnalyticsViewModel
 import com.example.movielog.features.auth.data.remote.FirebaseAuthDataSource
 import com.example.movielog.features.auth.data.repository.AuthRepositoryImpl
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
@@ -47,6 +48,9 @@ class MainActivity : ComponentActivity() {
         val libraryViewModel = LibraryViewModel(
             libraryRepository
         )
+        val analyticsViewModel = AnalyticsViewModel(
+            libraryRepository
+        )
         val profileRepository = ProfileRepositoryImpl(
             ProfileRemoteDataSource()
         )
@@ -63,6 +67,7 @@ class MainActivity : ComponentActivity() {
                     libraryRepository,
                     libraryViewModel,
                     profileViewModel,
+                    analyticsViewModel,
                     themeViewModel
                 )
             }
