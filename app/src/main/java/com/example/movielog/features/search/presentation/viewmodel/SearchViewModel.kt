@@ -2,6 +2,7 @@ package com.example.movielog.features.search.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movielog.core.config.AppConfig
 import com.example.movielog.features.search.domain.repository.SearchRepository
 import com.example.movielog.features.search.presentation.state.SearchUiState
 import kotlinx.coroutines.FlowPreview
@@ -37,8 +38,7 @@ class SearchViewModel(
     private fun observeSearch() {
         viewModelScope.launch {
             _query
-//                TODO: Migrate this hyperparameter into config
-                .debounce(400) // 🔥 KEY PART
+                .debounce(AppConfig.SEARCH_DEBOUNCE_MS) // 🔥 KEY PART
                 .map { it.trim() }
                 .distinctUntilChanged()
                 .flatMapLatest { query ->
