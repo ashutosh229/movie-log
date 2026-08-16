@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -49,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.profile.domain.model.UserProfile
 import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
+
 private enum class ProfileSection {
     PROFILE,
     SETTINGS
@@ -58,7 +60,8 @@ private enum class ProfileSection {
 fun ProfileScreen(
     onLogout: () -> Unit,
     profileViewModel: ProfileViewModel,
-    themeViewModel: ThemeViewModel
+    themeViewModel: ThemeViewModel,
+    onAnalyticsClick: () -> Unit
 ) {
     val isDarkMode by themeViewModel.isDarkMode.collectAsState()
     val uiState by profileViewModel.uiState.collectAsState()
@@ -185,9 +188,16 @@ fun ProfileScreen(
                     item {
                         ProfileMenuCard(
                             selectedSection = selectedSection,
-                            onProfileClick = { selectedSection = ProfileSection.PROFILE },
-                            onSettingsClick = { selectedSection = ProfileSection.SETTINGS },
-                            onLogoutClick = { showLogoutDialog = true }
+                            onProfileClick = {
+                                selectedSection = ProfileSection.PROFILE
+                            },
+                            onAnalyticsClick = onAnalyticsClick,
+                            onSettingsClick = {
+                                selectedSection = ProfileSection.SETTINGS
+                            },
+                            onLogoutClick = {
+                                showLogoutDialog = true
+                            }
                         )
                     }
 
@@ -270,6 +280,7 @@ fun ProfileScreen(
 private fun ProfileMenuCard(
     selectedSection: ProfileSection,
     onProfileClick: () -> Unit,
+    onAnalyticsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -289,7 +300,23 @@ private fun ProfileMenuCard(
                 selected = selectedSection == ProfileSection.PROFILE,
                 onClick = onProfileClick
             )
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            MenuItemRow(
+                title = "Analytics",
+                subtitle = "View your watching insights",
+                icon = Icons.Default.Analytics,
+                selected = false,
+                onClick = onAnalyticsClick
+            )
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
             MenuItemRow(
                 title = "Settings",
                 subtitle = "Theme and account controls",
@@ -297,7 +324,11 @@ private fun ProfileMenuCard(
                 selected = selectedSection == ProfileSection.SETTINGS,
                 onClick = onSettingsClick
             )
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+
             MenuItemRow(
                 title = "Logout",
                 subtitle = "Sign out of this session",
