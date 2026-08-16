@@ -1,5 +1,7 @@
 package com.example.movielog.core.network
 
+
+import com.example.movielog.core.config.ApiConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -8,9 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object NetworkModule {
 
-    private const val TMDB_BASE_URL = "https://api.themoviedb.org/3/"
-    private const val JIKAN_BASE_URL = "https://api.jikan.moe/v4/"
-//    TODO: Need to think of a config file for storing constants
+    private const val TMDB_BASE_URL = ApiConfig.TMDB_BASE_URL
+    private const val JIKAN_BASE_URL = ApiConfig.JIKAN_BASE_URL
 
     // 🔹 Logger (VERY useful for debugging)
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
