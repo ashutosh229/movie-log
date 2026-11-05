@@ -45,11 +45,11 @@ object ContentMapper {
             releaseYear = dto.aired?.prop?.from?.year?.toString() ?: "N/A",
             description = dto.synopsis ?: "No description available",
             language = "JP", //TODO: we do not get this directly.
-            type = if (dto.type == "Movie") {
-                ContentType.MOVIE
+            type = if (dto.type.equals("Movie", ignoreCase = true)) {
+                ContentType.ANIME_MOVIE
             } else {
                 ContentType.ANIME
-            },
+            }
 //            totalSeasons = if (dto.type == "Movie") {
 //                null // TODO: Need to think of some other number due to analytics
 //            } else {

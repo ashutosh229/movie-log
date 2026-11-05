@@ -42,11 +42,13 @@ import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.components.library.ContentActionSheet
 import com.example.movielog.core.ui.components.library.LibraryItem
 import com.example.movielog.core.ui.components.library.ProgressDialog
+import com.example.movielog.core.ui.components.search.ContentTypeFilterRow
 import com.example.movielog.features.library.domain.model.UserContent
 import com.example.movielog.features.library.domain.model.WatchStatus
 import com.example.movielog.features.library.domain.model.displayName
 import com.example.movielog.features.library.presentation.state.LibraryUiState
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
+import com.example.movielog.features.search.domain.model.ContentType
 
 @Composable
 fun LibraryScreen(
@@ -54,11 +56,29 @@ fun LibraryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    var selectedContent by remember { mutableStateOf<UserContent?>(null) }
-    var selectedTab by remember { mutableStateOf(WatchStatus.ONGOING) }
-    var showActionSheet by remember { mutableStateOf(false) }
-    var showProgressDialog by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    var selectedContent by remember {
+        mutableStateOf<UserContent?>(null)
+    }
+
+    var selectedTab by remember {
+        mutableStateOf(WatchStatus.ONGOING)
+    }
+
+    var showActionSheet by remember {
+        mutableStateOf(false)
+    }
+
+    var showProgressDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
+
+    var selectedContentType by remember {
+        mutableStateOf<ContentType?>(null)
+    }
 
     val tabs = listOf(
         WatchStatus.ONGOING,
@@ -85,7 +105,8 @@ fun LibraryScreen(
                 .fillMaxSize()
                 .padding(top = 24.dp)
         ) {
-            when (uiState) {
+            when (val state = uiState) {
+
                 is LibraryUiState.Loading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -98,24 +119,37 @@ fun LibraryScreen(
                 is LibraryUiState.Error -> {
                     LibraryStateCard(
                         title = "Library unavailable",
-                        description = (uiState as LibraryUiState.Error).message,
+                        description = state.message,
                         isError = true,
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
                 }
 
                 is LibraryUiState.Success -> {
-                    val allData = (uiState as LibraryUiState.Success).data
+                    val allData = state.data
 
-                    val filteredData = if (searchQuery.isBlank()) {
-                        allData.filter { it.status == selectedTab }
-                    } else {
-                        allData.filter {
-                            it.title.contains(
-                                searchQuery.trim(),
-                                ignoreCase = true
-                            )
-                        }
+                    // Apply content type, title search, and status filters.
+                    val filteredData = allData.filter { content ->
+
+                        val matchesType =
+                            selectedContentType == null ||
+                                    content.type == selectedContentType
+
+                        val matchesSearch =
+                            searchQuery.isBlank() ||
+                                    content.title.contains(
+                                        searchQuery.trim(),
+                                        ignoreCase = true
+                                    )
+
+                        // Preserve the existing behavior:
+                        // Searching searches across every watch status.
+                        // Without a search query, the selected tab is respected.
+                        val matchesStatus =
+                            searchQuery.isNotBlank() ||
+                                    content.status == selectedTab
+
+                        matchesType && matchesSearch && matchesStatus
                     }
 
                     LazyColumn(
@@ -128,6 +162,7 @@ fun LibraryScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
+                        // Header and search field.
                         item {
                             Card(
                                 shape = RoundedCornerShape(30.dp),
@@ -201,16 +236,32 @@ fun LibraryScreen(
                                             }
                                         },
                                         colors = OutlinedTextFieldDefaults.colors(
-                                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                            focusedContainerColor =
+                                            MaterialTheme.colorScheme.surface,
+                                            unfocusedContainerColor =
+                                            MaterialTheme.colorScheme.surface,
+                                            focusedBorderColor =
+                                            MaterialTheme.colorScheme.primary,
+                                            unfocusedBorderColor =
+                                            MaterialTheme.colorScheme.outlineVariant
                                         )
                                     )
                                 }
                             }
                         }
 
+                        // Content type filter.
+                        item {
+                            ContentTypeFilterRow(
+                                selectedType = selectedContentType,
+                                onTypeSelected = {
+                                    selectedContentType = it
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        // Search hint.
                         if (searchQuery.isNotBlank()) {
                             item {
                                 Text(
@@ -222,6 +273,7 @@ fun LibraryScreen(
                             }
                         }
 
+                        // Watch status tabs.
                         item {
                             ScrollableTabRow(
                                 selectedTabIndex = tabs.indexOf(selectedTab),
@@ -252,17 +304,26 @@ fun LibraryScreen(
                             }
                         }
 
+                        // Empty state or filtered library items.
                         if (filteredData.isEmpty()) {
                             item {
                                 if (searchQuery.isBlank()) {
                                     LibraryStateCard(
-                                        title = "Nothing in ${selectedTab.displayName()} yet",
-                                        description = "Add something from Search and it will show up here with status and progress details."
+                                        title = if (selectedContentType == null) {
+                                            "Nothing in ${selectedTab.displayName()} yet"
+                                        } else {
+                                            "No matching titles"
+                                        },
+                                        description = if (selectedContentType == null) {
+                                            "Add something from Search and it will show up here with status and progress details."
+                                        } else {
+                                            "There are no ${selectedContentType?.name?.lowercase() ?: "all"} titles in ${selectedTab.displayName()}."
+                                        }
                                     )
                                 } else {
                                     LibraryStateCard(
                                         title = "No matching titles",
-                                        description = "No title in your library matches \"$searchQuery\"."
+                                        description = "No title in your library matches \"$searchQuery\" with the selected filters."
                                     )
                                 }
                             }
@@ -283,6 +344,7 @@ fun LibraryScreen(
         }
     }
 
+    // Update progress dialog.
     if (showProgressDialog && selectedContent != null) {
         val content = selectedContent!!
 
@@ -306,6 +368,7 @@ fun LibraryScreen(
         )
     }
 
+    // Content actions.
     if (showActionSheet && selectedContent != null) {
         ContentActionSheet(
             onDismiss = {
@@ -322,11 +385,13 @@ fun LibraryScreen(
                 )
 
                 viewModel.updateContent(updated)
+
                 showActionSheet = false
                 selectedContent = null
             },
             onDelete = {
                 viewModel.deleteContent(selectedContent!!.id)
+
                 showActionSheet = false
                 selectedContent = null
             }

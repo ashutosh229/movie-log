@@ -1,6 +1,8 @@
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 import java.util.Properties
 
 plugins {
+    alias(libs.plugins.app.distribution)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -37,6 +39,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            firebaseAppDistribution {
+                artifactType = "APK"
+                testers = "akumarjha875@gmail.com"
+                releaseNotes = "Latest MovieLog development build"
+            }
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

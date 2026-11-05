@@ -44,7 +44,7 @@ fun ProgressDialog(
 
     var inputType by remember { mutableStateOf(ProgressInputType.FULL_SEASON) }
 
-    val isMovie = type == ContentType.MOVIE
+    val isMovie = type == ContentType.MOVIE || type == ContentType.ANIME_MOVIE
 
     AlertDialog(
         onDismissRequest = onDismiss,

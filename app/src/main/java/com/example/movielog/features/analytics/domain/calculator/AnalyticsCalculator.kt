@@ -40,7 +40,8 @@ object AnalyticsCalculator {
         }
 
         val animeCount = content.count {
-            it.type == ContentType.ANIME
+            it.type == ContentType.ANIME ||
+                    it.type == ContentType.ANIME_MOVIE
         }
 
         val completionPercentage = if (totalTitles == 0) {

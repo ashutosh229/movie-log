@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.movielog.features.search.domain.model.Content
+import com.example.movielog.features.search.domain.model.ContentType
 
 @Composable
 fun SearchItem(
@@ -72,7 +73,12 @@ fun SearchItem(
                         color = MaterialTheme.colorScheme.secondaryContainer
                     ) {
                         Text(
-                            text = content.type.name,
+                            text = when (content.type) {
+                                ContentType.MOVIE -> "MOVIE"
+                                ContentType.SERIES -> "SERIES"
+                                ContentType.ANIME -> "ANIME"
+                                ContentType.ANIME_MOVIE -> "ANIME"
+                            },
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSecondaryContainer

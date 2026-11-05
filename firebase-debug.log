@@ -1,0 +1,54 @@
+[debug] [2026-10-24T08:19:49.362Z] ----------------------------------------------------------------------
+[debug] [2026-10-24T08:19:49.364Z] Command:       C:\nvm4w\nodejs\node.exe C:\nvm4w\nodejs\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-10-24T08:19:49.364Z] CLI Version:   15.34.1
+[debug] [2026-10-24T08:19:49.364Z] Platform:      win32
+[debug] [2026-10-24T08:19:49.364Z] Node Version:  v22.13.1
+[debug] [2026-10-24T08:19:49.365Z] Detected Agent: unknown
+[debug] [2026-10-24T08:19:49.365Z] Time:          Sat Oct 24 2026 13:49:49 GMT+0530 (India Standard Time)
+[debug] [2026-10-24T08:19:49.365Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-10-24T08:19:49.373Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-10-24T08:19:49.414Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-10-24T08:19:49.415Z] > authorizing via signed-in user (akumarjha875@gmail.com)
+[debug] [2026-10-24T08:19:49.417Z] Checked if tokens are valid: false, expires at: 1724453205682
+[debug] [2026-10-24T08:19:49.418Z] Checked if tokens are valid: false, expires at: 1724453205682
+[debug] [2026-10-24T08:19:49.418Z] > refreshing access token with scopes: []
+[debug] [2026-10-24T08:19:49.419Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-10-24T08:19:49.419Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-24T08:19:49.622Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-10-24T08:19:49.622Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-24T08:19:49.622Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-10-24T08:19:50.127Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-10-24T08:19:50.127Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-10-24T08:19:50.131Z] Failed to fetch MOTD Error: EPERM: operation not permitted, rename 'C:\Users\akuma\.config\configstore\firebase-tools.json.1642320541' -> 'C:\Users\akuma\.config\configstore\firebase-tools.json'
+[debug] [2026-10-24T08:19:50.132Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 401
+[debug] [2026-10-24T08:19:50.132Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2026-10-24T08:19:50.132Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2026-10-24T08:19:50.132Z] Checked if tokens are valid: false, expires at: 1724453205682
+[debug] [2026-10-24T08:19:50.132Z] Checked if tokens are valid: false, expires at: 1724453205682
+[debug] [2026-10-24T08:19:50.132Z] > refreshing access token with scopes: []
+[debug] [2026-10-24T08:19:50.133Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-10-24T08:19:50.133Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-24T08:19:50.244Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-10-24T08:19:50.244Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-10-24T08:19:50.245Z] Request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 had HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2026-10-24T08:19:50.503Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 had HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+    at responseToError (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\lib\responseToError.js:53:12)
+    at RetryOperation._fn (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\lib\apiv2.js:415:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-10-24T08:19:50.772Z] Error: EPERM: operation not permitted, rename 'C:\Users\akuma\.config\configstore\firebase-tools.json.197043948' -> 'C:\Users\akuma\.config\configstore\firebase-tools.json'
+    at Object.renameSync (node:fs:1021:11)
+    at Function.writeFileSync [as sync] (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\node_modules\write-file-atomic\index.js:244:8)
+    at set all (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\node_modules\configstore\index.js:61:20)
+    at Configstore.set (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\node_modules\configstore\index.js:91:12)
+    at process.<anonymous> (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\lib\bin\cli.js:92:39)
+    at process.emit (node:events:536:35)
+    at process.processEmit [as emit] (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\node_modules\write-file-atomic\node_modules\signal-exit\index.js:191:37)
+    at process.exit (node:internal/process/per_thread:182:15)
+    at Timeout._onTimeout (C:\Users\akuma\AppData\Local\nvm\v22.13.1\node_modules\firebase-tools\lib\errorOut.js:20:17)
+    at listOnTimeout (node:internal/timers:594:17)
+[error] 
+[error] Error: An unexpected error has occurred.

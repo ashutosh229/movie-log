@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.movielog.core.ui.components.library.ProgressDialog
+import com.example.movielog.core.ui.components.search.ContentTypeFilterRow
 import com.example.movielog.core.ui.components.search.SearchItem
 import com.example.movielog.core.ui.components.search.StatusSelectionDialog
 import com.example.movielog.features.library.domain.mapper.toUserContent
@@ -56,14 +57,27 @@ fun SearchScreen(
     libraryRepository: LibraryRepository
 ) {
     val query by viewModel.query.collectAsState()
+    val selectedContentType by viewModel.selectedContentType.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
-    var selectedContent by remember { mutableStateOf<ContentSnapshot?>(null) }
-    var showProgressDialog by remember { mutableStateOf(false) }
-    var pendingContent by remember { mutableStateOf<ContentSnapshot?>(null) }
-    var pendingStatus by remember { mutableStateOf<WatchStatus?>(null) }
+    var selectedContent by remember {
+        mutableStateOf<ContentSnapshot?>(null)
+    }
+
+    var showProgressDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var pendingContent by remember {
+        mutableStateOf<ContentSnapshot?>(null)
+    }
+
+    var pendingStatus by remember {
+        mutableStateOf<WatchStatus?>(null)
+    }
 
     val scope = rememberCoroutineScope()
+
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
             MaterialTheme.colorScheme.background,
@@ -87,7 +101,9 @@ fun SearchScreen(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 8.dp
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -107,14 +123,16 @@ fun SearchScreen(
                         text = "Find something worth watching",
                         style = MaterialTheme.typography.displayMedium
                     )
+
                     Text(
                         text = "Search across movies, series, and anime, then drop favorites straight into your library.",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+
                     OutlinedTextField(
                         value = query,
-                        onValueChange = { viewModel.onQueryChange(it) },
+                        onValueChange = viewModel::onQueryChange,
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
@@ -129,7 +147,11 @@ fun SearchScreen(
                         },
                         trailingIcon = {
                             if (query.isNotEmpty()) {
-                                IconButton(onClick = { viewModel.onQueryChange("") }) {
+                                IconButton(
+                                    onClick = {
+                                        viewModel.onQueryChange("")
+                                    }
+                                ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
                                         contentDescription = "Clear search"
@@ -138,18 +160,33 @@ fun SearchScreen(
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                            focusedContainerColor =
+                            MaterialTheme.colorScheme.surface.copy(
+                                alpha = 0.96f
+                            ),
+                            unfocusedContainerColor =
+                            MaterialTheme.colorScheme.surface.copy(
+                                alpha = 0.92f
+                            ),
+                            focusedBorderColor =
+                            MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor =
+                            MaterialTheme.colorScheme.outlineVariant
                         )
+                    )
+
+                    ContentTypeFilterRow(
+                        selectedType = selectedContentType,
+                        onTypeSelected = viewModel::onContentTypeChange,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            when (uiState) {
+            when (val state = uiState) {
+
                 is SearchUiState.Idle -> {
                     SearchStateCard(
                         title = "Start with a title, franchise, or genre vibe",
@@ -169,13 +206,13 @@ fun SearchScreen(
                 is SearchUiState.Error -> {
                     SearchStateCard(
                         title = "Search hit a snag",
-                        description = (uiState as SearchUiState.Error).message,
+                        description = state.message,
                         isError = true
                     )
                 }
 
                 is SearchUiState.Success -> {
-                    val results = (uiState as SearchUiState.Success).data
+                    val results = state.data
 
                     if (results.isEmpty()) {
                         SearchStateCard(
@@ -187,7 +224,10 @@ fun SearchScreen(
                             text = "${results.size} result${if (results.size == 1) "" else "s"}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)
+                            modifier = Modifier.padding(
+                                start = 4.dp,
+                                bottom = 10.dp
+                            )
                         )
 
                         LazyColumn(
@@ -211,7 +251,9 @@ fun SearchScreen(
 
     selectedContent?.let { snapshot ->
         StatusSelectionDialog(
-            onDismiss = { selectedContent = null },
+            onDismiss = {
+                selectedContent = null
+            },
             onStatusSelected = { status ->
                 if (status == WatchStatus.ONGOING) {
                     pendingContent = snapshot
@@ -229,7 +271,11 @@ fun SearchScreen(
         )
     }
 
-    if (showProgressDialog && pendingContent != null && pendingStatus != null) {
+    if (
+        showProgressDialog &&
+        pendingContent != null &&
+        pendingStatus != null
+    ) {
         val snapshot = pendingContent!!
 
         ProgressDialog(
@@ -290,7 +336,9 @@ private fun SearchStateCard(
                 style = MaterialTheme.typography.titleLarge,
                 textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
