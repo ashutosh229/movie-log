@@ -47,6 +47,7 @@ import com.example.movielog.features.library.domain.model.WatchStatus
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.search.domain.mapper.toSnapshot
 import com.example.movielog.features.search.domain.model.ContentSnapshot
+import com.example.movielog.features.search.domain.model.ContentType
 import com.example.movielog.features.search.presentation.state.SearchUiState
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
 import kotlinx.coroutines.launch
@@ -54,7 +55,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun SearchScreen(
     viewModel: SearchViewModel,
-    libraryRepository: LibraryRepository
+    libraryRepository: LibraryRepository,
+    onContentClick: (ContentType, String) -> Unit
 ) {
     val query by viewModel.query.collectAsState()
     val selectedContentType by viewModel.selectedContentType.collectAsState()
@@ -238,6 +240,9 @@ fun SearchScreen(
                                 SearchItem(
                                     content = content,
                                     onClick = {
+                                        onContentClick(content.type, content.id)
+                                    },
+                                    onAddClick = {
                                         selectedContent = content.toSnapshot()
                                     }
                                 )

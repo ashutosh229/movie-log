@@ -1,13 +1,22 @@
 package com.example.movielog.core.ui.components.library
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -17,6 +26,7 @@ import com.example.movielog.features.library.domain.model.WatchStatus
 @Composable
 fun ContentActionSheet(
     onDismiss: () -> Unit,
+    onViewDetails: () -> Unit,
     onUpdateProgress: () -> Unit,
     onChangeStatus: (WatchStatus) -> Unit,
     onDelete: () -> Unit
@@ -31,7 +41,6 @@ fun ContentActionSheet(
                 .padding(vertical = 8.dp)
         ) {
 
-            // Header (Optional but improves UX)
             Text(
                 text = "Actions",
                 style = MaterialTheme.typography.titleMedium,
@@ -39,6 +48,12 @@ fun ContentActionSheet(
             )
 
             Divider()
+
+            AppActionItem(
+                icon = Icons.Default.Info,
+                text = "View Details",
+                onClick = onViewDetails
+            )
 
             AppActionItem(
                 icon = Icons.Default.Edit,

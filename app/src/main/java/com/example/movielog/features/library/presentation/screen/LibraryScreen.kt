@@ -52,7 +52,8 @@ import com.example.movielog.features.search.domain.model.ContentType
 
 @Composable
 fun LibraryScreen(
-    viewModel: LibraryViewModel
+    viewModel: LibraryViewModel,
+    onViewDetails: (UserContent) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -373,6 +374,12 @@ fun LibraryScreen(
         ContentActionSheet(
             onDismiss = {
                 showActionSheet = false
+            },
+            onViewDetails = {
+                val content = selectedContent!!
+                showActionSheet = false
+                selectedContent = null
+                onViewDetails(content)
             },
             onUpdateProgress = {
                 showActionSheet = false

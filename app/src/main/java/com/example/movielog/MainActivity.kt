@@ -14,6 +14,9 @@ import com.example.movielog.features.analytics.presentation.viewmodel.AnalyticsV
 import com.example.movielog.features.auth.data.remote.FirebaseAuthDataSource
 import com.example.movielog.features.auth.data.repository.AuthRepositoryImpl
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
+import com.example.movielog.features.detail.data.remote.DetailRemoteDataSource
+import com.example.movielog.features.detail.data.repository.DetailRepositoryImpl
+import com.example.movielog.features.detail.presentation.viewmodel.DetailViewModel
 import com.example.movielog.features.library.data.remote.LibraryRemoteDataSource
 import com.example.movielog.features.library.data.repository.LibraryRepositoryImpl
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
@@ -23,7 +26,6 @@ import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewM
 import com.example.movielog.features.search.data.remote.SearchRemoteDataSource
 import com.example.movielog.features.search.data.repository.SearchRepositoryImpl
 import com.example.movielog.features.search.presentation.viewmodel.SearchViewModel
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +53,12 @@ class MainActivity : ComponentActivity() {
         val analyticsViewModel = AnalyticsViewModel(
             libraryRepository
         )
+        val detailRepository = DetailRepositoryImpl(
+            DetailRemoteDataSource()
+        )
+        val detailViewModel = DetailViewModel(
+            detailRepository
+        )
         val profileRepository = ProfileRepositoryImpl(
             ProfileRemoteDataSource()
         )
@@ -68,6 +76,7 @@ class MainActivity : ComponentActivity() {
                     libraryViewModel,
                     profileViewModel,
                     analyticsViewModel,
+                    detailViewModel,
                     themeViewModel
                 )
             }
