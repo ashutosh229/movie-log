@@ -9,6 +9,7 @@ import com.example.movielog.core.navigation.navGraph.MainAppNavGraph
 import com.example.movielog.core.ui.components.common.BottomNavBar
 import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.analytics.presentation.viewmodel.AnalyticsViewModel
+import com.example.movielog.features.detail.presentation.viewmodel.DetailViewModel
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
 import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
@@ -21,6 +22,7 @@ fun MainAppContainer(
     libraryViewModel: LibraryViewModel,
     profileViewModel: ProfileViewModel,
     analyticsViewModel: AnalyticsViewModel,
+    detailViewModel: DetailViewModel,
     themeViewModel: ThemeViewModel
 ) {
     val navController = rememberNavController()
@@ -38,6 +40,7 @@ fun MainAppContainer(
             libraryViewModel = libraryViewModel,
             profileViewModel = profileViewModel,
             analyticsViewModel = analyticsViewModel,
+            detailViewModel = detailViewModel,
             themeViewModel = themeViewModel,
             modifier = Modifier.padding(innerPadding)
         )
