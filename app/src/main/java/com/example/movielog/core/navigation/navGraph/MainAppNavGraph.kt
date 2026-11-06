@@ -14,6 +14,7 @@ import com.example.movielog.features.analytics.presentation.screen.AnalyticsScre
 import com.example.movielog.features.analytics.presentation.viewmodel.AnalyticsViewModel
 import com.example.movielog.features.detail.presentation.screen.DetailScreen
 import com.example.movielog.features.detail.presentation.viewmodel.DetailViewModel
+import com.example.movielog.features.export.presentation.viewmodel.ExportViewModel
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.screen.HomeScreen
 import com.example.movielog.features.library.presentation.screen.LibraryScreen
@@ -33,6 +34,7 @@ fun MainAppNavGraph(
     profileViewModel: ProfileViewModel,
     analyticsViewModel: AnalyticsViewModel,
     detailViewModel: DetailViewModel,
+    exportViewModel: ExportViewModel,
     themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -75,7 +77,8 @@ fun MainAppNavGraph(
                 themeViewModel = themeViewModel,
                 onAnalyticsClick = {
                     navController.navigate(Routes.ANALYTICS)
-                }
+                },
+                exportViewModel = exportViewModel,
             )
         }
 

@@ -17,6 +17,7 @@ import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
 import com.example.movielog.features.detail.data.remote.DetailRemoteDataSource
 import com.example.movielog.features.detail.data.repository.DetailRepositoryImpl
 import com.example.movielog.features.detail.presentation.viewmodel.DetailViewModel
+import com.example.movielog.features.export.presentation.viewmodel.ExportViewModel
 import com.example.movielog.features.library.data.remote.LibraryRemoteDataSource
 import com.example.movielog.features.library.data.repository.LibraryRepositoryImpl
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
@@ -46,6 +47,9 @@ class MainActivity : ComponentActivity() {
         )
         val libraryRepository = LibraryRepositoryImpl(
             LibraryRemoteDataSource()
+        )
+        val exportViewModel = ExportViewModel(
+            libraryRepository
         )
         val libraryViewModel = LibraryViewModel(
             libraryRepository
@@ -77,6 +81,7 @@ class MainActivity : ComponentActivity() {
                     profileViewModel,
                     analyticsViewModel,
                     detailViewModel,
+                    exportViewModel,
                     themeViewModel
                 )
             }
