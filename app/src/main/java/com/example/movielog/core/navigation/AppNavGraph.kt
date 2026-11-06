@@ -10,6 +10,7 @@ import com.example.movielog.core.ui.theme.ThemeViewModel
 import com.example.movielog.features.analytics.presentation.viewmodel.AnalyticsViewModel
 import com.example.movielog.features.auth.presentation.viewmodel.AuthViewModel
 import com.example.movielog.features.detail.presentation.viewmodel.DetailViewModel
+import com.example.movielog.features.export.presentation.viewmodel.ExportViewModel
 import com.example.movielog.features.library.domain.repository.LibraryRepository
 import com.example.movielog.features.library.presentation.viewmodel.LibraryViewModel
 import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
@@ -24,6 +25,7 @@ fun AppNavGraph(
     profileViewModel: ProfileViewModel,
     analyticsViewModel: AnalyticsViewModel,
     detailViewModel: DetailViewModel,
+    exportViewModel: ExportViewModel,
     themeViewModel: ThemeViewModel
 ) {
     val authState by AuthManager.authState.collectAsState()
@@ -45,6 +47,7 @@ fun AppNavGraph(
             profileViewModel = profileViewModel,
             analyticsViewModel = analyticsViewModel,
             detailViewModel = detailViewModel,
+            exportViewModel = exportViewModel,
             themeViewModel = themeViewModel
         )
     }

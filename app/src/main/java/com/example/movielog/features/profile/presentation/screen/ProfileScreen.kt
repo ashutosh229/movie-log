@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -43,16 +44,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.movielog.core.ui.components.export.ExportOptionsCard
 import com.example.movielog.core.ui.theme.ThemeViewModel
+import com.example.movielog.core.utils.shareExport
+import com.example.movielog.features.export.presentation.viewmodel.ExportViewModel
 import com.example.movielog.features.profile.domain.model.UserProfile
 import com.example.movielog.features.profile.presentation.viewmodel.ProfileViewModel
 
 private enum class ProfileSection {
     PROFILE,
+    EXPORT,
     SETTINGS
 }
 
@@ -61,10 +67,13 @@ fun ProfileScreen(
     onLogout: () -> Unit,
     profileViewModel: ProfileViewModel,
     themeViewModel: ThemeViewModel,
+    exportViewModel: ExportViewModel,
     onAnalyticsClick: () -> Unit
 ) {
     val isDarkMode by themeViewModel.isDarkMode.collectAsState()
     val uiState by profileViewModel.uiState.collectAsState()
+    val exportState by exportViewModel.uiState.collectAsState()
+    val context = LocalContext.current
     val backgroundBrush = Brush.verticalGradient(
         colors = listOf(
             MaterialTheme.colorScheme.background,
@@ -89,6 +98,20 @@ fun ProfileScreen(
         if (uiState.message != null || uiState.error != null) {
             kotlinx.coroutines.delay(2500)
             profileViewModel.clearMessage()
+        }
+    }
+
+    LaunchedEffect(exportState.pendingShare) {
+        exportState.pendingShare?.let { result ->
+            shareExport(context, result)
+            exportViewModel.onShareHandled()
+        }
+    }
+
+    LaunchedEffect(exportState.error) {
+        if (exportState.error != null) {
+            kotlinx.coroutines.delay(2500)
+            exportViewModel.clearError()
         }
     }
 
@@ -185,6 +208,16 @@ fun ProfileScreen(
                         }
                     }
 
+                    exportState.error?.let { error ->
+                        item {
+                            ProfileMessageCard(
+                                title = "Export failed",
+                                description = error,
+                                isError = true
+                            )
+                        }
+                    }
+
                     item {
                         ProfileMenuCard(
                             selectedSection = selectedSection,
@@ -192,13 +225,15 @@ fun ProfileScreen(
                                 selectedSection = ProfileSection.PROFILE
                             },
                             onAnalyticsClick = onAnalyticsClick,
+                            onExportClick = { selectedSection = ProfileSection.EXPORT },
                             onSettingsClick = {
                                 selectedSection = ProfileSection.SETTINGS
                             },
                             onLogoutClick = {
                                 showLogoutDialog = true
-                            }
-                        )
+                            },
+
+                            )
                     }
 
                     item {
@@ -217,6 +252,16 @@ fun ProfileScreen(
                                             profileViewModel.updateProfile(editedName)
                                         }
                                     }
+                                )
+                            }
+
+                            ProfileSection.EXPORT -> ProfileSectionCard(
+                                title = "Export & Share",
+                                subtitle = "Back up your library or share it with friends."
+                            ) {
+                                ExportOptionsCard(
+                                    isExporting = exportState.isExporting,
+                                    onExport = { exportViewModel.export(it) }
                                 )
                             }
 
@@ -281,6 +326,7 @@ private fun ProfileMenuCard(
     selectedSection: ProfileSection,
     onProfileClick: () -> Unit,
     onAnalyticsClick: () -> Unit,
+    onExportClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -315,6 +361,14 @@ private fun ProfileMenuCard(
 
             HorizontalDivider(
                 color = MaterialTheme.colorScheme.outlineVariant
+            )
+
+            MenuItemRow(
+                title = "Export & Share",
+                subtitle = "Save or share your library",
+                icon = Icons.Default.Share,
+                selected = selectedSection == ProfileSection.EXPORT,
+                onClick = onExportClick
             )
 
             MenuItemRow(
